@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# The parameter $1 is the uncompressed restore directory location
+backup_dir=$1/apps/rainloop
+
+sudo cp -a $backup_dir/sources/. /var/www/rainloop
+sudo cp -a $backup_dir/php-fpm.conf /etc/php5/fpm/pool.d/rainloop.conf
+
+db_pwd=$(sudo yunohost app setting rainloop mysqlpwd)
+sudo yunohost app initdb rainloop -p "$db_pwd" -s $backup_dir/dump.sql
+
+# Copy Nginx and YunoHost parameters to make the script "standalone"
+sudo cp -a $backup_dir/yunohost/. /etc/yunohost/apps/rainloop
+domain=$(sudo yunohost app setting rainloop domain)
+sudo cp -a $backup_dir/nginx.conf /etc/nginx/conf.d/$domain.d/rainloop.conf
+
+sudo service php5-fpm restart
+sudo service nginx restart
