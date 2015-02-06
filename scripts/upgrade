@@ -9,10 +9,10 @@ is_public=$(sudo yunohost app setting $app is_public)
 
 
 # Check domain/path availability
-sudo yunohost app checkurl $domain$path -a rainloop
-if [[ ! $? -eq 0 ]]; then
-    exit 1
-fi
+#sudo yunohost app checkurl $domain$path -a rainloop
+#if [[ ! $? -eq 0 ]]; then
+#    exit 1
+#fi
 
 # Generate random DES key & password
 #deskey=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
