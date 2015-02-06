@@ -31,7 +31,16 @@
                 },
                 "example": "/rainloop",
                 "default": "/rainloop"
-            }
+            },
+	    {
+               "name": "is_public",
+                "ask": {
+                    "en": "Is it a public application ?",
+                    "fr": "Est-ce une page publique ?"
+                },
+                "choices": ["Yes", "No"],
+                "default": "Yes"
+	    }
         ]
     }
 }
