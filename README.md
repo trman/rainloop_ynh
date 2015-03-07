@@ -14,4 +14,4 @@ To configure your instance, go to the admin panel, then "Domains" and add a doma
 
 To access the database (required for contacts), the paramaters are the following :
 - Database name : rainloop
-- Password : your_ynh_admin_password
+- Password : then_password_indicated_at_installation
