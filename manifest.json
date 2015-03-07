@@ -3,7 +3,7 @@
     "id": "rainloop",
     "description": {
         "en": "Lightweight webmail - Manual configuration after installation with login : admin // password : 12345",
-        "fr": "Webmail leger - Configuration manuelle après installation avec : login admin // mot de passe : 12345"
+        "fr": "Webmail leger - Configuration manuelle après installation avec utilisateur : admin // mot de passe : 12345"
     },
     "url": "http://rainloop.net/",
     "maintainer": {
