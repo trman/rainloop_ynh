@@ -1,14 +1,16 @@
 #!/bin/bash
 
-#db_user=rainloop
-#db_name=rainloop
-#root_pwd=$(sudo cat /etc/yunohost/mysql)
+app=rainloop
+
+db_user=$app
+db_name=$app
+root_pwd=$(sudo cat /etc/yunohost/mysql)
 domain=$(sudo yunohost app setting rainloop domain)
 
-#mysql -u root -p $root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
-sudo rm -rf /var/www/rainloop
-sudo rm -f /etc/nginx/conf.d/$domain.d/rainloop.conf
-sudo rm -f /etc/php5/fpm/pool.d/rainloop.conf
+mysql -u root -p $root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
+sudo rm -rf /var/www/$app
+sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
+sudo rm -f /etc/php5/fpm/pool.d/$app.conf
 
 sudo service php5-fpm restart
 sudo service nginx reload

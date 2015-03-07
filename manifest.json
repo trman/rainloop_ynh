@@ -1,5 +1,5 @@
 {
-    "name": "rainloop",
+    "name": "Rainloop",
     "id": "rainloop",
     "description": {
         "en": "Lightweight webmail",
@@ -40,6 +40,15 @@
                 },
                 "choices": ["Yes", "No"],
                 "default": "Yes"
+	    },
+            {
+                "name": "dp_pwd",
+                "type": "password",
+                "ask": {
+                    "en": "Choose a password for rainloop MySQL database. Please note that the table and the user will be rainloop (used for carddav)",
+                    "fr": "Choisissez un mot de passe pour la base MySQL de phpBB. Veuillez noter que la table et l'utilisateur créés seront rainloop (utilisé pour carddav)"
+                },
+                "example": "my_strong_password"
 	    }
         ]
     }
