@@ -5,6 +5,10 @@
         "en": "Lightweight webmail",
         "fr": "Webmail leger"
     },
+    "warning": {
+        "en": "Right after installation, please finish configuration by hand. Login : admin / Passwd : 12345",
+        "fr": "Juste après l'installation, veuillez finir manuellement la configuration. Login : admin / Passwd : 12345"
+    },
     "url": "http://rainloop.net/",
     "maintainer": {
         "name": "polytan02",
@@ -49,14 +53,6 @@
                     "fr": "Choisissez un mot de passe pour la base MySQL de Rainloop. Veuillez noter que la table et l'utilisateur créés seront rainloop (sensible à la casse - utilisé pour carddav)"
                 },
                 "example": "my_strong_password"
-	    },
-            {
-                "name": "warning",
-                "type": "warning",
-                "ask": {
-                    "en": "Right after installation, please finish configuration by hand. Login : admin / Passwd : 12345",
-                    "fr": "Juste après l'installation, veuillez finir manuellement la configuration. Login : admin / Passwd : 12345"
-                }
 	    }
         ]
     }
