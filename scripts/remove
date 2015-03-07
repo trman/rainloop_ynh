@@ -7,7 +7,7 @@ db_name=$app
 root_pwd=$(sudo cat /etc/yunohost/mysql)
 domain=$(sudo yunohost app setting rainloop domain)
 
-mysql -u root -p $root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
+mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
 sudo rm -rf /var/www/$app
 sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
 sudo rm -f /etc/php5/fpm/pool.d/$app.conf
