@@ -12,12 +12,13 @@ To configure it, go to http://DOMAIN.TLD/rainloop/?admin<br>
 - The default password is : 12345<br>
 <br>
 To configure your instance, go to the admin panel, then "Domains" and add a domain in accord with your mail server setup.<br>
-<br/>
-Loggin issues :
-Yunohost email credentials are based on username and not on email address. If you want to use your "real mail address" you should :
+<br>
+Loggin issues :<br>
+Yunohost email credentials are based on username and not on email address. If you want to use your "real mail address" you should :<br>
 - Enable plugins
 - Use "custom-login-mapping" plugin
 - Mapping should be the following : "email_you_want_to_use:ynh_username"
+<br>
 <br>
 To access the database (required for contacts), the paramaters are the following :<br>
 - Database name : rainloop<br>
