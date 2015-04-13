@@ -8,16 +8,16 @@ path=$2
 is_public=$3
 
 # Removal of trailing /
-#path=${path%/}
+path=${path%/}
 
 sudo yunohost app setting rainloop domain -v $domain
 
 
 # Check domain/path availability
-sudo yunohost app checkurl $domain$path -a rainloop
-if [[ ! $? -eq 0 ]]; then
-    exit 1
-fi
+#sudo yunohost app checkurl $domain$path -a rainloop
+#if [[ ! $? -eq 0 ]]; then
+#    exit 1
+#fi
 
 # Generate random password
 #db_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
