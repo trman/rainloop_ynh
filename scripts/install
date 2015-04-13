@@ -10,6 +10,9 @@ is_public=$3
 # Removal of trailing /
 path=${path%/}
 
+sudo yunohost app setting rainloop domain -v $domain
+
+
 # Check domain/path availability
 sudo yunohost app checkurl $domain$path -a rainloop
 if [[ ! $? -eq 0 ]]; then
@@ -26,7 +29,6 @@ db_user=$app
 # Initialize database and store mysql password for upgrade
 sudo yunohost app initdb $db_user -p $db_pwd
 sudo yunohost app setting rainloop mysqlpwd -v $db_pwd
-sudo yunohost app setting rainloop domain -v $domain
 
 #mysql -u $db_user -p$db_pwd $db_user < ../sources/plugins/automatic_addressbook/SQL/mysql.initial.sql
 
