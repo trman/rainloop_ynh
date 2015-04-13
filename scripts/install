@@ -8,9 +8,9 @@ path=$2
 is_public=$3
 
 # Removal of trailing /
-path=${path%/}
+#path=${path%/}
 
-sudo yunohost app setting rainloop domain -v $domain
+#sudo yunohost app setting rainloop domain -v $domain
 
 
 # Check domain/path availability
