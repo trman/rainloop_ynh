@@ -39,7 +39,7 @@
                     "fr": "Est-ce une page publique ?"
                 },
                 "choices": ["Yes", "No"],
-                "default": "Yes"
+                "default": "No"
 	    },
             {
                 "name": "dp_pwd",
