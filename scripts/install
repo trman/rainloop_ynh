@@ -37,8 +37,8 @@ final_path=/var/www/$app
 sudo rm -rf $final_path
 sudo mkdir -p $final_path
 # Use of latest community edition
-wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O ../sources/rainloop.zip
-unzip ../sources/rainloop.zip -d $final_path/
+sudo wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O ../sources/rainloop.zip
+sudo unzip ../sources/rainloop.zip -d $final_path/
 
 # Set permissions to rainloop directory
 # sudo mkdir -p $final_path/logs
