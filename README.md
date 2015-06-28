@@ -1,5 +1,4 @@
 # Rainloop for YunoHost 
----------------------- 
  
 * [rainloop](http://rainloop.net/ )
  
