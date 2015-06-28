@@ -36,8 +36,9 @@ sudo yunohost app setting rainloop mysqlpwd -v $db_pwd
 final_path=/var/www/$app
 sudo rm -rf $final_path
 sudo mkdir -p $final_path
-sudo cp -a ../sources/* $final_path
-
+# Use of latest community edition
+wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O $final_path/rainloop.zip
+unzip $final_path/rainloop.zip -d $final_path/
 
 # Set permissions to rainloop directory
 # sudo mkdir -p $final_path/logs
