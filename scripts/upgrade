@@ -17,7 +17,9 @@ sudo yunohost app initdb $db_user -p $db_pwd
 # Copy files to the right place
 final_path=/var/www/$app/rainloop/v/
 sudo rm -rf $final_path/*
-sudo cp -a ../sources/rainloop/v/* $final_path
+# Use of latest community edition
+wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O $final_path/rainloop.zip
+unzip $final_path/rainloop.zip -d $final_path/
 
 
 # Set permissions to rainloop directory
