@@ -8,9 +8,18 @@ path=$2
 is_public=$3
 
 # Removal of trailing /
-path=${path%/}
+if [ $path = "/" ]
+then
+	#sitename="root"
+	echo "Installation on the root of the domain"
+else
+	# sitename == path without any "/"
+	#sitename=$(echo $path | cut -d '/' -f 2)
+	# Removal of trailing /
+	# path can be null but not really an issue for the remaining commands
+	path=${path%/}
+fi
 
-#sudo yunohost app setting rainloop domain -v $domain
 
 
 # Check domain/path availability
