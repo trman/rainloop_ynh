@@ -20,6 +20,7 @@ sudo rm -rf $final_path/*
 # Use of latest community edition
 sudo wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O $final_path/rainloop.zip
 sudo unzip $final_path/rainloop.zip -d $final_path/
+sudo rm $final_path/rainloop.zip
 
 # Set permissions to rainloop directory
 sudo chown -R www-data:www-data /var/www/$app
