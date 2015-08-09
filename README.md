@@ -12,13 +12,6 @@ To configure it, go to http://DOMAIN.TLD/rainloop/?admin
  
 To configure your instance, go to the admin panel, then "Domains" and add a domain in accord with your mail server setup. 
  
-Login issues : 
-Yunohost email credentials are based on username and not on email address. If you want to use your "real mail address" you should : 
-- Enable plugins
-- Use "custom-login-mapping" plugin
-- Mapping should be the following : "email_you_want_to_use:ynh_username"
- 
- 
 To access the database (required for contacts), the paramaters are the following : 
 - Database name : rainloop 
 - Password : the_database_password_indicated_at_installation 
@@ -27,6 +20,10 @@ Once this is done in the admin interface, each user can add a remote carddav ser
 If you use baikal, the CardDav address is : 
 https://DOMAIN.TLD/baikal/card.php/addressbooks/USER/default/
  
+- to upgrade the app once a new rainloop version is available, simply run in a local shell via ssh or otherwise :
+
+``sudo yunohost app upgrade -u https://github.com/polytan02/rainloop_ynh rainloop``
+
  
 ## Français 
 Rainloop est un webmail simple et léger. 
@@ -46,4 +43,8 @@ Une fois ceci fait depuis l'interface d'administration, chaque utilisateur peut 
 Si vous utilisez Baikal, l'adresse à renseigner est du type : 
 https://DOMAIN.TLD/baikal/card.php/addressbooks/UTILISATEUR/default/ 
 
+
+- pour mettre à jour rainloop lorsqu'une nouvelle version est disponible, lancez en console locale (ssh ou autre) :
+
+``sudo yunohost app upgrade -u https://github.com/polytan02/rainloop_ynh rainloop``
 
