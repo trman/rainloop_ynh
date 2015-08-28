@@ -49,15 +49,6 @@
                     "fr": "Choisissez un mot de passe pour la base MySQL de Rainloop. Veuillez noter que la table et l'utilisateur créés seront rainloop (sensible à la casse - utilisé pour carddav)"
                 },
                 "example": "my_strong_password"
-	    },
-	    {
-               "name": "manual_config",
-                "ask": {
-                    "en": "IMPORTANT : Manual configuration after installation with login : admin // password : 12345",
-                    "fr": "IMPORTANT : Configuration manuelle après installation avec utilisateur : admin // mot de passe : 12345"
-                },
-                "choices": ["Yes", "Yes (You don't have a choice !)"],
-                "default": "Yes"
 	    }
         ]
     }
