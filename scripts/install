@@ -71,7 +71,7 @@ sudo cp ../conf/data/domains/domain.tld.ini $final_path/data/_data_/_default_/do
 sudo cp ../conf/data/domains/disabled $final_path/data/_data_/_default_/domains/disabled
 
 # SSO
-sed -i "s@domain.tld@$domain@g" ../conf/sso.php
+sed -i "s@domain.tld/rainloop@$domain$path@g" ../conf/sso.php
 sudo cp ../conf/sso.php $final_path/sso.php
 
 # Temporary workaround until someone finds a way to setup NGINX properly...
