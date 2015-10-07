@@ -5,7 +5,7 @@
 ## English
 Rainloop is a lightweight webmail. 
  
-To configure it, go to http://DOMAIN.TLD/rainloop/?admin 
+To configure it, go to http://DOMAIN.TLD/rainloop/app/?admin 
  
 - The default login is : user chosen during install 
 - The default password is : 12345 
@@ -22,7 +22,7 @@ https://DOMAIN.TLD/baikal/card.php/addressbooks/USER/default/
 ## Français 
 Rainloop est un webmail simple et léger. 
  
-Pour le configurer après l'installation, veuillez vous rendre sur http://DOMAIN.TLD/rainloop/?admin 
+Pour le configurer après l'installation, veuillez vous rendre sur http://DOMAIN.TLD/rainloop/app/?admin 
  
 - Le nom d'utilisateur admin par défaut est : utilisateur choisi lors de l'installation
 - Le mot de passe admin par défaut est : 12345 
