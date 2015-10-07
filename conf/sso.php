@@ -2,7 +2,7 @@
 
 // Enable RainLoop Api and include index file 
 $_ENV['RAINLOOP_INCLUDE_AS_API'] = true;
-include '/var/wwwPATHTOCHANGE/index.php';
+include '/var/www/rainloop/index.php';
 
 // Retrieve email and password
 if (isset($_SERVER['HTTP_EMAIL']) && isset($_SERVER['PHP_AUTH_PW'])) {
