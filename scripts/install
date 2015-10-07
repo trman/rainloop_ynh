@@ -6,6 +6,12 @@ app=rainloop
 domain=$1
 path=$2
 is_public=$3
+user=$4
+
+# Check user parameter
+sudo yunohost user list --json | grep -qi "\"username\": \"$user\"" \
+	|| (echo "User does not exist: $user" && exit 1)
+sudo yunohost app setting $app admin_user -v $user
 
 # Removal of trailing /
 if [ $path = "/" ]
@@ -29,8 +35,7 @@ if [[ ! $? -eq 0 ]]; then
 fi
 
 # Generate random password
-#db_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
-db_pwd=$4
+db_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
 
 # Use 'rainloop' as database name and user
 db_user=$app
@@ -49,6 +54,21 @@ sudo mkdir -p $final_path
 sudo wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O $final_path/rainloop.zip
 sudo unzip $final_path/rainloop.zip -d $final_path/
 sudo rm $final_path/rainloop.zip
+
+# Autoconfig
+sudo mkdir -p $final_path/data/_data_/_default_/configs/
+sed -i "s@domain.tld@$domain@g" ../conf/data/configs/application.ini
+sed -i "s@ADMINUSER@$user@g" ../conf/data/configs/application.ini
+sed -i "s@ADMINPASSWORD@12345@g" ../conf/data/configs/application.ini
+sed -i "s@MYSQLUSER@db_user@g" ../conf/data/configs/application.ini
+sed -i "s@MYSQLPASSWORD@$db_pwd@g" ../conf/data/configs/application.ini
+sudo cp ../conf/data/configs/application.ini $final_path/data/_data_/_default_/configs/application.ini
+
+# Add default domain config
+sudo mkdir -p $final_path/data/_data_/_default_/domains/
+sed -i "s@domain.tld@$domain@g" ../conf/data/domains/domain.tld.ini
+sudo cp ../conf/data/domains/domain.tld.ini $final_path/data/_data_/_default_/domains/$domain.ini
+sudo cp ../conf/data/domains/disabled $final_path/data/_data_/_default_/domains/disabled
 
 # Set permissions to rainloop directory
 # sudo mkdir -p $final_path/logs
