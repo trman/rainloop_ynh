@@ -45,7 +45,7 @@ sudo mkdir -p $final_path/app
 sudo mv $final_path/index.php $final_path/app/index.php
 sudo mv $final_path/data $final_path/app/data
 sudo mv $final_path/rainloop $final_path/app/rainloop
-sudo sed -i "s@index.php@app/@g" $final_path/sso.php
+sudo sed -i "s@index.php@app/index.php@g" $final_path/sso.php
 sudo mv $final_path/sso.php $final_path/index.php
 
 # Make app public if necessary
