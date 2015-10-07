@@ -70,6 +70,17 @@ sed -i "s@domain.tld@$domain@g" ../conf/data/domains/domain.tld.ini
 sudo cp ../conf/data/domains/domain.tld.ini $final_path/data/_data_/_default_/domains/$domain.ini
 sudo cp ../conf/data/domains/disabled $final_path/data/_data_/_default_/domains/disabled
 
+# SSO
+sudo cp ../conf/sso.php $final_path/sso.php
+
+# Temporary workaround until someone finds a way to setup NGINX properly...
+sudo mkdir -p $final_path/app
+sudo mv $final_path/index.php $final_path/app/index.php
+sudo mv $final_path/data $final_path/app/data
+sudo mv $final_path/rainloop $final_path/app/rainloop
+sudo sed -i "s@index.php@app/@g" $final_path/sso.php
+sudo mv $final_path/sso.php $final_path/index.php
+
 # Set permissions to rainloop directory
 # sudo mkdir -p $final_path/logs
 sudo chown -R www-data:www-data $final_path
