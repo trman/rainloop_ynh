@@ -11,8 +11,8 @@ if (isset($_SERVER['HTTP_EMAIL']) && isset($_SERVER['PHP_AUTH_PW'])) {
 	$ssoHash = \RainLoop\Api::GetUserSsoHash($email, $password);
 
 	// redirect to webmail sso url
-	\header('Location: https://test.com/rainloop/index.php?sso&hash='.$ssoHash);
+	\header('Location: https://domain.tld/rainloop/index.php?sso&hash='.$ssoHash);
 }
 else {
-	\header('Location: https://test.com/rainloop/index.php');
+	\header('Location: https://domain.tld/rainloop/index.php');
 }
