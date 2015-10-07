@@ -38,6 +38,8 @@ sudo chown root: $finalphpconf
 sudo chmod 644 $finalphpconf
 
 # SSO
+sed -i "s@domain.tld@$domain@g" ../conf/sso.php
+sed -i "s@PATHTOCHANGE@$path@g" ../conf/sso.php
 sudo cp ../conf/sso.php $final_path/sso.php
 
 # Temporary workaround until someone finds a way to setup NGINX properly...
