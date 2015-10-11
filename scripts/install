@@ -73,7 +73,7 @@ sudo cp ../conf/data/configs/application.ini $rainloop_path/data/_data_/_default
 
 # Set admin password
 sed -i "s@ADMINPASSWORD@$password@g" ../conf/data/config.php
-sudo php ../conf/data/config.php
+sudo php ../conf/config.php
 
 # Add default domain configs by looping through all the domains already added
 sudo mkdir -p $rainloop_path/data/_data_/_default_/domains/
