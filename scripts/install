@@ -72,7 +72,7 @@ sed -i "s@LANGTOCHANGE@$lang@g" ../conf/data/configs/application.ini
 sudo cp ../conf/data/configs/application.ini $rainloop_path/data/_data_/_default_/configs/application.ini
 
 # Set admin password
-sed -i "s@ADMINPASSWORD@$password@g" ../conf/data/config.php
+sed -i "s@ADMINPASSWORD@$password@g" ../conf/config.php
 sudo php ../conf/config.php
 
 # Add default domain configs by looping through all the domains already added
