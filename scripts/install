@@ -8,11 +8,6 @@ path=$2
 is_public=$3
 password=$4
 
-# Check user parameter
-sudo yunohost user list --json | grep -qi "\"username\": \"$user\"" \
-	|| (echo "User does not exist: $user" && exit 1)
-sudo yunohost app setting $app admin_user -v $user
-
 # Removal of trailing /
 if [ $path = "/" ]
 then
