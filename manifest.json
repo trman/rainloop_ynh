@@ -42,13 +42,12 @@
                 "default": "No"
 			},
 			{
-                "name": "admin",
-                "type": "user",
+                "name": "password",
+                "type": "password",
                 "ask": {
-                    "en": "Choose the Rainloop administrator (must be an existing YunoHost user)",
-                    "fr": "Choisissez l'administrateur Rainloop (doit être un utilisateur YunoHost déjà existant)"
-                },
-                "example": "homer"
+                    "en": "Choose a strong password for the 'admin' user",
+                    "fr": "Choisissez un mot de passe fort pour l'administrateur 'admin'"
+                }
 			}
         ]
     }

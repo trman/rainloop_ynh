@@ -16,14 +16,18 @@ sudo yunohost app initdb $db_user -p $db_pwd
 
 # Copy files to the right place
 final_path=/var/www/$app
-#sudo rm -rf $final_path/*
-# Use of latest community edition
-sudo wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O $final_path/rainloop.zip
-sudo unzip -ou $final_path/rainloop.zip -d $final_path/
-sudo rm $final_path/rainloop.zip
+rainloop_path=${final_path}/app
 
-# Set permissions to rainloop directory
-sudo chown -R www-data:www-data /var/www/$app
+sudo rm -rf $final_path
+sudo mkdir -p $final_path
+sudo mkdir -p $rainloop_path
+
+# Use of latest community edition
+sudo wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O $rainloop_path/rainloop.zip
+sudo unzip $rainloop_path/rainloop.zip -d $rainloop_path/
+sudo rm $rainloop_path/rainloop.zip
+
+
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
 sed -i "s@PATHTOCHANGE@$path@g" ../conf/nginx.conf
@@ -40,15 +44,10 @@ sudo chmod 644 $finalphpconf
 # SSO
 sed -i "s@domain.tld@$domain@g" ../conf/sso.php
 sed -i "s@PATHTOCHANGE@$path@g" ../conf/sso.php
-sudo cp ../conf/sso.php $final_path/sso.php
+sudo cp ../conf/sso.php $final_path/index.php
 
-# Temporary workaround until someone finds a way to setup NGINX properly...
-sudo mkdir -p $final_path/app
-sudo mv $final_path/index.php $final_path/app/index.php
-sudo mv $final_path/data $final_path/app/data
-sudo mv $final_path/rainloop $final_path/app/rainloop
-sudo sed -i "s@index.php@app/index.php@g" $final_path/sso.php
-sudo mv $final_path/sso.php $final_path/index.php
+# Set permissions to rainloop directory
+sudo chown -R www-data:www-data $final_path
 
 # Make app public if necessary
 sudo yunohost app setting $app is_public -v "$is_public"
