@@ -41,7 +41,8 @@ sudo yunohost app setting rainloop mysqlpwd -v $db_pwd
 
 # Copy files to the right place
 final_path=/var/www/$app
-rainloop_path=${final_path}/app
+#rainloop_path=${final_path}/app
+rainloop_path=${final_path}
 
 sudo rm -rf $final_path
 sudo mkdir -p $final_path
@@ -54,54 +55,63 @@ sudo rm $rainloop_path/rainloop.zip
 
 # Autoconfig
 sudo mkdir -p $rainloop_path/data/_data_/_default_/configs/
-sed -i "s@domain.tld@$domain@g" ../conf/data/configs/application.ini
-sed -i "s@MYSQLUSER@db_user@g" ../conf/data/configs/application.ini
-sed -i "s@MYSQLPASSWORD@$db_pwd@g" ../conf/data/configs/application.ini
+application_file=$rainloop_path/data/_data_/_default_/configs/application.ini
 if [ $(echo $LANG | cut -c1-2) == "fr" ]
 then
     lang=fr
 else
     lang=en
 fi
-sed -i "s@LANGTOCHANGE@$lang@g" ../conf/data/configs/application.ini
-sudo cp ../conf/data/configs/application.ini $rainloop_path/data/_data_/_default_/configs/application.ini
+sudo cp ../conf/data/configs/application.ini $application_file
+sudo sed -i "s@domain.tld@$domain@g"         $application_file
+sudo sed -i "s@MYSQLUSER@db_user@g"          $application_file
+sudo sed -i "s@MYSQLPASSWORD@$db_pwd@g"      $application_file
+sudo sed -i "s@LANGTOCHANGE@$lang@g"         $application_file
 
 # Set admin password
-sed -i "s@ADMINPASSWORD@$password@g" ../conf/config.php
-sudo php ../conf/config.php
+sudo php ../conf/config.php --index="$rainloop_path/index.php" --password="$password"
 
 # Add default domain configs by looping through all the domains already added
 sudo mkdir -p $rainloop_path/data/_data_/_default_/domains/
 sudo yunohost domain list | sed -e '1d' | while read -r line ; do
 	domain=${line//- }
-	sed -i "s@domain.tld@$domain@g" ../conf/data/domains/domain.tld.ini
 	sudo cp ../conf/data/domains/domain.tld.ini $rainloop_path/data/_data_/_default_/domains/$domain.ini
-	sed -i "s@$domain@domain.tld@g" ../conf/data/domains/domain.tld.ini
+	sudo sed -i "s@domain.tld@$domain@g"        $rainloop_path/data/_data_/_default_/domains/$domain.ini
 done
 sudo cp ../conf/data/domains/disabled $rainloop_path/data/_data_/_default_/domains/disabled
+
+# now install ynh plugins:
+sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
+sudo cp -rf ../sources/plugins/ynh-login-mapping $rainloop_path/data/_data_/_default_/plugins/.
+
 
 # Hooks for domains are not implemented yet, so new domains will not be added automatically
 
 # SSO
-sed -i "s@domain.tld@$domain@g" ../conf/sso.php
-sed -i "s@PATHTOCHANGE@$path@g" ../conf/sso.php
-sudo cp ../conf/sso.php $final_path/index.php
+#sudo cp ../conf/sso.php $final_path/index.php
+sudo cp ../sources/sso/index.php      $final_path/index.php
+sudo cp ../sources/sso/index.php      $final_path/index.php
+sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
+sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
 
 # Set permissions to rainloop directory
 # sudo mkdir -p $final_path/logs
 sudo chown -R www-data:www-data $final_path
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
-sed -i "s@PATHTOCHANGE@$path@g" ../conf/nginx.conf
-sed -i "s@ALIASTOCHANGE@$final_path/@g" ../conf/nginx.conf
-sed -i "s@NAMETOCHANGE@$app@g" ../conf/nginx.conf
-sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
+nginx_conf_file=/etc/nginx/conf.d/$domain.d/$app.conf
+sudo cp ../conf/nginx.conf $nginx_conf_file
+sudo sed -i "s@PATHTOCHANGE@$path@g"         $nginx_conf_file
+sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" $nginx_conf_file
+sudo sed -i "s@NAMETOCHANGE@$app@g"          $nginx_conf_file
+sudo chown root:                             $nginx_conf_file
+sudo chmod 644                               $nginx_conf_file
 
-sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
 finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $finalphpconf
-sudo chown root: $finalphpconf
-sudo chmod 644 $finalphpconf
+sudo cp ../conf/php-fpm.conf        $finalphpconf
+sudo sed -i "s@NAMETOCHANGE@$app@g" $finalphpconf
+sudo chown root:                    $finalphpconf
+sudo chmod 644                      $finalphpconf
 
 # Make app public if necessary
 sudo yunohost app setting $app is_public -v "$is_public"
