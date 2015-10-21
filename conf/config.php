@@ -21,7 +21,7 @@ $_ENV['RAINLOOP_INCLUDE_AS_API'] = true;
 include $args['index'];
 
 $oConfig = \RainLoop\Api::Config();
-$oConfig->SetPassword($args['pwd']);
+$oConfig->SetPassword($args['password']);
 echo $oConfig->Save() ? 'Admin password updated' : 'Admin password not updated';
 
 ?>

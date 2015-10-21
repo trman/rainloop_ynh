@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('APP_VERSION')) {
-	define('APP_VERSION', '1.9.3.363');
+	define('APP_VERSION', '1.9.3.365');
 	define('APP_INDEX_ROOT_FILE', __FILE__);
 	define('APP_INDEX_ROOT_PATH', str_replace('\\', '/', rtrim(dirname(__FILE__), '\\/').'/'));
 }
