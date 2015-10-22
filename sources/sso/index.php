@@ -1,9 +1,12 @@
 <?php
 
 if (!defined('APP_VERSION')) {
-	define('APP_VERSION', '1.9.3.365');
-	define('APP_INDEX_ROOT_FILE', __FILE__);
-	define('APP_INDEX_ROOT_PATH', str_replace('\\', '/', rtrim(dirname(__FILE__), '\\/').'/'));
+	$version = file_get_contents('data/VERSION');
+	if ($version) {
+		define('APP_VERSION', $version);
+		define('APP_INDEX_ROOT_FILE', __FILE__);
+		define('APP_INDEX_ROOT_PATH', str_replace('\\', '/', rtrim(dirname(__FILE__), '\\/').'/'));
+	}
 }
 
 if(isset($_GET["auto_log"])) {

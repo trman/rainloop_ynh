@@ -41,8 +41,8 @@ sudo yunohost app setting rainloop mysqlpwd -v $db_pwd
 
 # Copy files to the right place
 final_path=/var/www/$app
-#rainloop_path=${final_path}/app
-rainloop_path=${final_path}
+rainloop_path=${final_path}/app
+#rainloop_path=${final_path}
 
 sudo rm -rf $final_path
 sudo mkdir -p $final_path
@@ -87,18 +87,23 @@ sudo cp -rf ../sources/plugins/ynh-login-mapping $rainloop_path/data/_data_/_def
 
 # Hooks for domains are not implemented yet, so new domains will not be added automatically
 
-# SSO
-#sudo cp ../conf/sso.php $final_path/index.php
-sudo cp ../sources/sso/index.php      $final_path/index.php
-sudo cp ../sources/sso/index.php      $final_path/index.php
+# install SSO and auto version
+if [ $final_path == $rainloop_path ]
+then
+	# use modified version of master index.php that implement sso
+	sudo cp ../sources/sso/index.php      $final_path/index.php
+else
+    # use only sso on master
+	sudo cp ../sources/sso/sso.php                  $final_path/index.php
+	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
+fi
 sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
 sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
 
 # Set permissions to rainloop directory
-# sudo mkdir -p $final_path/logs
 sudo chown -R www-data:www-data $final_path
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
+# Install Nginx configuration file
 nginx_conf_file=/etc/nginx/conf.d/$domain.d/$app.conf
 sudo cp ../conf/nginx.conf $nginx_conf_file
 sudo sed -i "s@PATHTOCHANGE@$path@g"         $nginx_conf_file
