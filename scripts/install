@@ -82,8 +82,8 @@ sudo cp ../conf/data/domains/disabled $rainloop_path/data/_data_/_default_/domai
 
 # now install ynh plugins:
 sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
-sudo cp -rf ../sources/plugins/ynh-login-mapping $rainloop_path/data/_data_/_default_/plugins/.
-
+sudo cp -rf ../sources/plugins/ynh-login-mapping     $rainloop_path/data/_data_/_default_/plugins/.
+sudo cp -rf ../sources/plugins/ynh-ldap-addressbooks $rainloop_path/data/_data_/_default_/plugins/.
 
 # Hooks for domains are not implemented yet, so new domains will not be added automatically
 
