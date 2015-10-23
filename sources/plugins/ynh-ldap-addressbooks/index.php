@@ -1,12 +1,12 @@
 <?php
 class YnhLdapAddressbooksPlugin extends \RainLoop\Plugins\AbstractPlugin {
-
 	public function Init() {
 		$this->addHook ( 'main.fabrica', 'MainFabrica' );
 	}
 	
 	/**
 	 * test if ldap is supported (but with ynh it nead ;) )
+	 *
 	 * @return string
 	 */
 	public function Supported() {
@@ -17,6 +17,7 @@ class YnhLdapAddressbooksPlugin extends \RainLoop\Plugins\AbstractPlugin {
 	}
 	
 	/**
+	 *
 	 * @param string $sName        	
 	 * @param mixed $mResult        	
 	 */
@@ -32,5 +33,5 @@ class YnhLdapAddressbooksPlugin extends \RainLoop\Plugins\AbstractPlugin {
 			$mResult [] = $oProvider;
 		}
 	}
-
 }
+?>

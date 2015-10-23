@@ -2,29 +2,32 @@
 class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestions {
 	
 	/**
+	 *
 	 * @var \MailSo\Log\Logger
 	 */
 	private $oLogger = null;
 	
 	/**
+	 *
 	 * @param \RainLoop\Model\Account $oAccount        	
 	 * @param string $sQuery        	
-	 * @param int $iLimit = 20
+	 * @param int $iLimit
+	 *        	= 20
 	 *        	
 	 * @return array
 	 */
 	public function Process($oAccount, $sQuery, $iLimit = 20) {
-		$sQuery = \trim($sQuery);
+		$sQuery = \trim ( $sQuery );
 		
-		if (''===$sQuery || !$oAccount) {
+		if ('' === $sQuery || ! $oAccount) {
 			return array ();
 		}
 		
 		$aResult = $this->ldapSearch ( $oAccount, $sQuery, $iLimit );
 		
-		$aResult = \RainLoop\Utils::RemoveSuggestionDuplicates($aResult);
-		if ($iLimit < \count($aResult)) {
-			$aResult = \array_slice($aResult, 0, $iLimit);
+		$aResult = \RainLoop\Utils::RemoveSuggestionDuplicates ( $aResult );
+		if ($iLimit < \count ( $aResult )) {
+			$aResult = \array_slice ( $aResult, 0, $iLimit );
 		}
 		
 		return $aResult;
@@ -32,8 +35,8 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 	
 	/**
 	 *
-	 *  OK search in ldap. 
-	 *  match email or displayName...
+	 * OK search in ldap.
+	 * match email or displayName...
 	 *
 	 * @param \RainLoop\Model\Account $oAccount        	
 	 * @param string $sQuery        	
@@ -41,27 +44,27 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 	 * @return array
 	 */
 	private function ldapSearch($oAccount, $sQuery, $iLimit) {
-		$sSearchEscaped = $this->escape($sQuery);
+		$sSearchEscaped = $this->escape ( $sQuery );
 		
-		$aResult = array();
-		$oCon = @\ldap_connect();
+		$aResult = array ();
+		$oCon = @\ldap_connect ();
 		if (! $oCon) {
-			$this->oLogger->Write('YnhLdapAddressbooks: Could not connect to LDAP server', \MailSo\Log\Enumerations\Type::ERROR );
+			$this->oLogger->Write ( 'YnhLdapAddressbooks: Could not connect to LDAP server', \MailSo\Log\Enumerations\Type::ERROR );
 			return $aResult;
 		}
 		
-		@\ldap_set_option($oCon, LDAP_OPT_PROTOCOL_VERSION, 3 );
+		@\ldap_set_option ( $oCon, LDAP_OPT_PROTOCOL_VERSION, 3 );
 		
-		if (!ldap_bind($oCon)) {
+		if (! ldap_bind ( $oCon )) {
 			// bizard... ca renvoie false.... mais ca marche....
 			// $this->logLdapError ( $oCon, 'ldap_bind' );
 			// $this->Manager()->Actions()->Logger()->Write('YnhLdapAdressbooks: Could not bind to LDAP server', \MailSo\Log\Enumerations\Type::ERROR);
 			// return $aResult;
 		}
 		
-		$this->oLogger->Write('YnhLdapAddressbooks: connected to LDAP', \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
+		$this->oLogger->Write ( 'YnhLdapAddressbooks: connected to LDAP', \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
 		
-		$sSearchDn='dc=yunohost,dc=org';
+		$sSearchDn = 'dc=yunohost,dc=org';
 		
 		// on veut chercher parmis mail et nom utilisateur...
 		$sFilter = '(&(objectClass=inetOrgPerson)';
@@ -70,32 +73,43 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 		$sFilter .= '(displayName=*' . $sSearchEscaped . '*)';
 		$sFilter .= '))';
 		
-		$aItems = array ( 'mail', 'displayName');
+		$aItems = array (
+				'mail',
+				'displayName' 
+		);
 		
-		$this->oLogger->Write('YnhLdapAddressbooks: ldap_search : '.$sSearchDn.' / '.$sFilter, \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
+		$this->oLogger->Write ( 'YnhLdapAddressbooks: ldap_search : ' . $sSearchDn . ' / ' . $sFilter, \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
 		
-		$oS = @\ldap_search($oCon, $sSearchDn, $sFilter, $aItems, 0, $iLimit, $iLimit);
+		$oS = @\ldap_search ( $oCon, $sSearchDn, $sFilter, $aItems, 0, $iLimit, $iLimit );
 		if ($oS) {
-			$aEntries = @\ldap_get_entries($oCon, $oS);
-			$this->oLogger->Write('YnhLdapAddressbooks: ldap_search => '.var_export($aEntries), \MailSo\Log\Enumerations\Type::INFO, 'LDAP');
-			if (is_array($aEntries)) {
-				if (isset ( $aEntries ['count'] )) { unset ( $aEntries ['count'] ); }
+			$aEntries = @\ldap_get_entries ( $oCon, $oS );
+			$this->oLogger->Write ( 'YnhLdapAddressbooks: ldap_search => ' . var_export ( $aEntries ), \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
+			
+			if (is_array ( $aEntries )) {
+				if (isset ( $aEntries ['count'] )) {
+					unset ( $aEntries ['count'] );
+				}
 				
 				foreach ( $aEntries as $aItem ) {
-					if ($aItem) {
-						$sEmail = \trim($aItem['mail'] [0] );
-						$sName  = \trim($aItem['displayname'] [0] );
-						
-						if (!empty($sEmail)) {
-							$aResult[] = array($sEmail, $sName);
+					$sName = \trim ( $aItem ['displayname'] [0] );
+					if (isset ( $aItem ['mail'] ['count'] )) {
+						unset ( $aItem ['mail'] ['count'] );
+					}
+					foreach ( $aItem ['mail'] as $sEmail ) {
+						$sEmail = \trim ( $sEmail );
+						if (! empty ( $sEmail )) {
+							$aResult [] = array (
+									$sEmail,
+									$sName 
+							);
 						}
 					}
 				}
 			} else {
-				$this->logLdapError($oCon, 'ldap_get_entries');
+				$this->logLdapError ( $oCon, 'ldap_get_entries' );
 			}
 		} else {
-			$this->logLdapError($oCon, 'ldap_search');
+			$this->logLdapError ( $oCon, 'ldap_search' );
 		}
 		
 		return $aResult;
@@ -109,12 +123,18 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 	 */
 	private function escape($sStr) {
 		$aNewChars = array ();
-		$aChars = array ('\\', '*',' (', ')', \chr(0));
+		$aChars = array (
+				'\\',
+				'*',
+				' (',
+				')',
+				\chr ( 0 ) 
+		);
 		
 		foreach ( $aChars as $iIndex => $sValue ) {
 			$aNewChars [$iIndex] = '\\' . \str_pad ( \dechex ( \ord ( $sValue ) ), 2, '0' );
 		}
-		return \str_replace($aChars, $aNewChars, $sStr);
+		return \str_replace ( $aChars, $aNewChars, $sStr );
 	}
 	
 	/**
@@ -126,10 +146,10 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 	 */
 	private function logLdapError($oCon, $sCmd) {
 		if ($this->oLogger) {
-			$sError = $oCon ? @\ldap_error($oCon) : '';
-			$iErrno = $oCon ? @\ldap_errno($oCon) : 0;
+			$sError = $oCon ? @\ldap_error ( $oCon ) : '';
+			$iErrno = $oCon ? @\ldap_errno ( $oCon ) : 0;
 			
-			$this->oLogger->Write($sCmd.' error: '.$sError.' ('. $iErrno.')', \MailSo\Log\Enumerations\Type::WARNING, 'LDAP' );
+			$this->oLogger->Write ( $sCmd . ' error: ' . $sError . ' (' . $iErrno . ')', \MailSo\Log\Enumerations\Type::WARNING, 'LDAP' );
 		}
 	}
 	
@@ -146,5 +166,5 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 	public function SetLogger($oLogger) {
 		$this->oLogger = $oLogger instanceof \MailSo\Log\Logger ? $oLogger : null;
 	}
-
 }
+?>
