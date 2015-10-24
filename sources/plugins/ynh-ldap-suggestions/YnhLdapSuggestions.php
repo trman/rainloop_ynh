@@ -1,5 +1,5 @@
 <?php
-class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestions {
+class YnhLdapSuggestions implements \RainLoop\Providers\Suggestions\ISuggestions {
 	
 	/**
 	 *
@@ -49,7 +49,7 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 		$aResult = array ();
 		$oCon = @\ldap_connect ();
 		if (! $oCon) {
-			$this->oLogger->Write ( 'YnhLdapAddressbooks: Could not connect to LDAP server', \MailSo\Log\Enumerations\Type::ERROR );
+			$this->oLogger->Write ( 'YnhLdapSuggestions: Could not connect to LDAP server', \MailSo\Log\Enumerations\Type::ERROR );
 			return $aResult;
 		}
 		
@@ -62,7 +62,7 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 			// return $aResult;
 		}
 		
-		$this->oLogger->Write ( 'YnhLdapAddressbooks: connected to LDAP', \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
+		$this->oLogger->Write ( 'YnhLdapSuggestions: connected to LDAP', \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
 		
 		$sSearchDn = 'dc=yunohost,dc=org';
 		
@@ -78,12 +78,12 @@ class YnhLdapAddressbooks implements \RainLoop\Providers\Suggestions\ISuggestion
 				'displayName' 
 		);
 		
-		$this->oLogger->Write ( 'YnhLdapAddressbooks: ldap_search : ' . $sSearchDn . ' / ' . $sFilter, \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
+		$this->oLogger->Write ( 'YnhLdapSuggestions: ldap_search : ' . $sSearchDn . ' / ' . $sFilter, \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
 		
 		$oS = @\ldap_search ( $oCon, $sSearchDn, $sFilter, $aItems, 0, $iLimit, $iLimit );
 		if ($oS) {
 			$aEntries = @\ldap_get_entries ( $oCon, $oS );
-			$this->oLogger->Write ( 'YnhLdapAddressbooks: ldap_search => ' . var_export ( $aEntries ), \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
+			$this->oLogger->Write ( 'YnhLdapSuggestions: ldap_search => ' . var_export ( $aEntries ), \MailSo\Log\Enumerations\Type::INFO, 'LDAP' );
 			
 			if (is_array ( $aEntries )) {
 				if (isset ( $aEntries ['count'] )) {

@@ -1,5 +1,5 @@
 <?php
-class YnhLdapAddressbooksPlugin extends \RainLoop\Plugins\AbstractPlugin {
+class YnhLdapSuggestionsPlugin extends \RainLoop\Plugins\AbstractPlugin {
 	public function Init() {
 		$this->addHook ( 'main.fabrica', 'MainFabrica' );
 	}
@@ -23,13 +23,13 @@ class YnhLdapAddressbooksPlugin extends \RainLoop\Plugins\AbstractPlugin {
 	 */
 	public function MainFabrica($sName, &$mResult) {
 		if ($sName === 'suggestions') {
-			include_once __DIR__ . '/YnhLdapAddressbooks.php';
+			include_once __DIR__ . '/YnhLdapSuggestions.php';
 			
 			if (! \is_array ( $mResult )) {
 				$mResult = array ();
 			}
 			
-			$oProvider = new YnhLdapAddressbooks ();
+			$oProvider = new YnhLdapSuggestions ();
 			$mResult [] = $oProvider;
 		}
 	}
