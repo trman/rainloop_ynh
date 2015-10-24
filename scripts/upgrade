@@ -1,72 +1,66 @@
 #!/bin/bash
-
+set -e
 app=rainloop
 
 # Retrieve arguments
-domain=$(sudo yunohost app setting $app domain)
-path=$(sudo yunohost app setting $app path)
-is_public=$(sudo yunohost app setting $app is_public)
-dp_pwd=$(sudo yunohost app setting $app mysqlpwd)
-db_user=$app
+	domain=$(sudo yunohost app setting $app domain)
+	path=$(sudo yunohost app setting $app path)
+	is_public=$(sudo yunohost app setting $app is_public)
+	dp_pwd=$(sudo yunohost app setting $app mysqlpwd)
+	db_user=$app
+	plugins=$(sudo yunohost app setting $app plugins)
 
 # no update for db now...
-#root_pwd=$(sudo cat /etc/yunohost/mysql)
-#mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
-#sudo yunohost app initdb $db_user -p $db_pwd
 
-# Copy files to the right place
-final_path=/var/www/$app
-rainloop_path=${final_path}/app
-#rainloop_path=${final_path}
+# Create the final path and copy sources
+	final_path=/var/www/$app
+	rainloop_path=${final_path}/app
 
-# no delete... we keep old install, the new is in a new path
-#sudo rm -rf $final_path
-#sudo mkdir -p $final_path
-#sudo mkdir -p $rainloop_path
+	# the old version is not deleted... the new version is in a new path
 
-# Use of latest community edition
-sudo unzip ../sources/rainloop-community.zip -d $rainloop_path/
+	# Use of latest community edition
+	sudo unzip -q ../sources/rainloop-community.zip -d $rainloop_path/
 
-# update patch to auto load version.
-sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
+	# Update patch to auto load version
+	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
 
-# update ynh plugins:
-sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
-sudo cp -rf ../sources/plugins/ynh-login-mapping     $rainloop_path/data/_data_/_default_/plugins/.
-sudo cp -rf ../sources/plugins/ynh-ldap-addressbooks $rainloop_path/data/_data_/_default_/plugins/.
+	# Update ynh plugins:
+	sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
+	sudo cp -rf ../sources/plugins/ynh-login-mapping $rainloop_path/data/_data_/_default_/plugins/.
+	sudo cp -rf ../sources/plugins/ynh-ldap-suggestions $rainloop_path/data/_data_/_default_/plugins/.
 
 # update SSO and auto version
-if [ $final_path == $rainloop_path ]
-then
-	# use modified version of master index.php that implement sso
-	sudo cp ../sources/sso/index.php      $final_path/index.php
-else
-    # use only sso on master
-	sudo cp ../sources/sso/sso.php                  $final_path/index.php
-	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
-fi
-sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
-sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
+	if [ $final_path == $rainloop_path ]
+	then
+		# use modified version of master index.php that implement sso
+		sudo cp ../sources/sso/index.php      $final_path/index.php
+	else
+		# use only sso on master
+		sudo cp ../sources/sso/sso.php                  $final_path/index.php
+		sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
+	fi
+	sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
+	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
 
 # Set permissions to rainloop directory
-sudo chown -R www-data:www-data $final_path
+	sudo chown -R www-data:www-data $final_path
 
 # Update Nginx configuration file
-nginx_conf_file=/etc/nginx/conf.d/$domain.d/$app.conf
-sudo cp ../conf/nginx.conf $nginx_conf_file
-sudo sed -i "s@PATHTOCHANGE@$path@g"         $nginx_conf_file
-sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" $nginx_conf_file
-sudo sed -i "s@NAMETOCHANGE@$app@g"          $nginx_conf_file
-sudo chown root:                             $nginx_conf_file
-sudo chmod 644                               $nginx_conf_file
+	nginx_conf_file=/etc/nginx/conf.d/$domain.d/$app.conf
+	sudo cp ../conf/nginx.conf $nginx_conf_file
+	sudo sed -i "s@PATHTOCHANGE@$path@g"         $nginx_conf_file
+	sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" $nginx_conf_file
+	sudo sed -i "s@NAMETOCHANGE@$app@g"          $nginx_conf_file
+	sudo chown root:                             $nginx_conf_file
+	sudo chmod 644                               $nginx_conf_file
 
-finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf        $finalphpconf
-sudo sed -i "s@NAMETOCHANGE@$app@g" $finalphpconf
-sudo chown root:                    $finalphpconf
-sudo chmod 644                      $finalphpconf
+	finalphpconf=/etc/php5/fpm/pool.d/$app.conf
+	sudo cp ../conf/php-fpm.conf        $finalphpconf
+	sudo sed -i "s@NAMETOCHANGE@$app@g" $finalphpconf
+	sudo chown root:                    $finalphpconf
+	sudo chmod 644                      $finalphpconf
 
 # Reload Nginx and regenerate SSOwat conf
-sudo service php5-fpm reload
-sudo service nginx reload
-sudo yunohost app ssowatconf
+	sudo service php5-fpm reload
+	sudo service nginx reload
+	sudo yunohost app ssowatconf
