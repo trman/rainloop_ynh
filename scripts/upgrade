@@ -21,10 +21,6 @@ app=rainloop
 	# Use of latest community edition
 	sudo unzip ../sources/rainloop-community.zip -d $rainloop_path/
 	
-	# Install plugins
-	sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
-	sudo cp -rf ../sources/plugins/ynh-login-mapping $rainloop_path/data/_data_/_default_/plugins/.
-
 	# Update patch to auto load version
 	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
 
