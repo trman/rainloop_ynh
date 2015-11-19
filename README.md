@@ -1,6 +1,6 @@
 # Rainloop for YunoHost 
  
-* [rainloop](http://rainloop.net/ )
+* [rainloop](http://rainloop.net/ ): 1.9.3.365
  
 ## English
 Rainloop is a lightweight webmail. 
@@ -16,7 +16,7 @@ https://DOMAIN.TLD/baikal/card.php/addressbooks/USER/default/
  
 - to upgrade the app once a new rainloop version is available, simply run in a local shell via ssh or otherwise :
 
-``sudo yunohost app upgrade -u https://github.com/polytan02/rainloop_ynh rainloop``
+``sudo yunohost app upgrade -u https://github.com/YunoHostPlugins-Testing/rainloop_ynh rainloop``
 
  
 ## Français 
@@ -34,5 +34,5 @@ https://DOMAIN.TLD/baikal/card.php/addressbooks/UTILISATEUR/default/
 
 - pour mettre à jour rainloop lorsqu'une nouvelle version est disponible, lancez en console locale (ssh ou autre) :
 
-``sudo yunohost app upgrade -u https://github.com/polytan02/rainloop_ynh rainloop``
+``sudo yunohost app upgrade -u https://github.com/YunoHostPlugins-Testing/rainloop_ynh rainloop``
 
