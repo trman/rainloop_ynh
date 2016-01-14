@@ -8,6 +8,7 @@ app=rainloop
 	is_public=$3
 	password=$4
 	ldap=$5
+	lang=$6
 
 # Removal of trailing /
 	if [ $path = "/" ]
@@ -54,13 +55,18 @@ app=rainloop
 	sudo mkdir -p $rainloop_path/data/_data_/_default_/configs/
 	application_file=$rainloop_path/data/_data_/_default_/configs/application.ini
 
-	# Set lang
-	if [ $(echo $LANG | cut -c1-2) == "fr" ]
-	then
-		lang=fr
-	else
-		lang=en
-	fi
+	# Set lang => define from install manifest
+	case "$lang" in
+        Francais)
+            lang="fr"
+            ;;
+        English)
+            lang="en"
+            ;;
+        *)
+            lang="en"
+	esac
+	
 	
 	# Set plugins
 	plugins="ynh-login-mapping"
@@ -85,8 +91,8 @@ app=rainloop
 
 	# get list of ldap domains
 	alldomains=`ldapsearch -LLL -x -b ou=domains,dc=yunohost,dc=org -s one "objectclass=top" virtualdomain | grep -v "dn:" | sed "s/virtualdomain://" `
-	for domain in $alldomains ; do
-		sudo cp ../conf/data/domains/domain.tld.ini $rainloop_path/data/_data_/_default_/domains/$domain.ini
+	for ldomain in $alldomains ; do
+		sudo cp ../conf/data/domains/domain.tld.ini $rainloop_path/data/_data_/_default_/domains/$ldomain.ini
 	done
 	sudo cp ../conf/data/domains/disabled $rainloop_path/data/_data_/_default_/domains/disabled
 
