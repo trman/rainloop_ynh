@@ -44,7 +44,7 @@ app=rainloop
 	sudo mkdir -p $rainloop_path
 
 	# Use of latest community edition
-	sudo wget https://github.com/RainLoop/rainloop-webmail/releases/download/v1.10.1.127/rainloop-community-1.10.1.127-18d553ae9cd96eb102059b04fdee62e0.zip
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v1.10.1.127/rainloop-community-1.10.1.127-18d553ae9cd96eb102059b04fdee62e0.zip
 	#Check checksum
 	sudo unzip -qq rainloop-community-1.10.1.*.zip -d $rainloop_path/
 	
