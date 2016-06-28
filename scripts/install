@@ -67,7 +67,7 @@ app=$YNH_APP_INSTANCE_NAME
 	then
 		plugins="$plugins,ynh-ldap-suggestions"
 	fi
-	ynh_app_setting_set "$app" plugins -v $plugins
+	ynh_app_setting_set "$app" plugins "$plugins"
 	
 	sudo cp ../conf/data/configs/application.ini $application_file
 	sudo sed -i "s@domain.tld@$domain@g"         $application_file
@@ -118,10 +118,10 @@ app=$YNH_APP_INSTANCE_NAME
 	sudo chmod 644                      $finalphpconf
 
 # Make app public if necessary
-	sudo yunohost app setting $app is_public -v "$is_public"
+	ynh_app_setting_set "$app" is_public "$is_public"
 	if [ "$is_public" = "Yes" ];
 	then
-		sudo yunohost app setting $app skipped_uris -v "/"
+		ynh_app_setting_set "$app" skipped_uris "/"
 	fi
 
 # Reload services
