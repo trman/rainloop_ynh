@@ -1,14 +1,17 @@
-#!/bin/bash
-set -e
-app=rainloop
+# Exit on command errors and treat unset variables as an error
+set -eu
+app=$YNH_APP_INSTANCE_NAME
+
+# Source app helpers
+. /usr/share/yunohost/helpers
 
 # Retrieve arguments
-	domain=$(sudo yunohost app setting $app domain)
-	path=$(sudo yunohost app setting $app path)
-	is_public=$(sudo yunohost app setting $app is_public)
-	dp_pwd=$(sudo yunohost app setting $app mysqlpwd)
+	domain=$(ynh_app_setting_get "$app" domain)
+	path=$(ynh_app_setting_get "$app" path)
+	is_public=$(ynh_app_setting_get "$app" is_public)
+	dp_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
 	db_user=$app
-	plugins=$(sudo yunohost app setting $app plugins)
+	plugins=$(ynh_app_setting_get "$app" plugins)
 
 # no update for db now...
 
@@ -19,7 +22,9 @@ app=rainloop
 	# the old version is not deleted... the new version is in a new path
 
 	# Use of latest community edition
-	sudo unzip -q ../sources/rainloop-community.zip -d $rainloop_path/
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v1.10.1.127/rainloop-community-1.10.1.127-18d553ae9cd96eb102059b04fdee62e0.zip
+	#Check checksum
+	sudo unzip -qq rainloop-community-1.10.1.*.zip -d $rainloop_path/
 
 	# Update patch to auto load version
 	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
@@ -30,19 +35,14 @@ app=rainloop
 	sudo cp -rf ../sources/plugins/ynh-ldap-suggestions $rainloop_path/data/_data_/_default_/plugins/.
 
 # update SSO and auto version
-	if [ $final_path == $rainloop_path ]
-	then
-		# use modified version of master index.php that implement sso
-		sudo cp ../sources/sso/index.php      $final_path/index.php
-	else
-		# use only sso on master
-		sudo cp ../sources/sso/sso.php                  $final_path/index.php
-		sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
-	fi
+	sudo cp ../sources/sso/sso.php                  $final_path/index.php
+	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
 	sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
 	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
 
 # Set permissions to rainloop directory
+	sudo find $final_path/. -type d -exec chmod 755 {} \;
+	sudo find $final_path/. -type f -exec chmod 644 {} \;
 	sudo chown -R www-data:www-data $final_path
 
 # Update Nginx configuration file
@@ -60,7 +60,6 @@ app=rainloop
 	sudo chown root:                    $finalphpconf
 	sudo chmod 644                      $finalphpconf
 
-# Reload Nginx and regenerate SSOwat conf
-	sudo service php5-fpm reload
-	sudo service nginx reload
-	sudo yunohost app ssowatconf
+# Reload services
+	sudo service php5-fpm restart || true
+	sudo service nginx reload || true
