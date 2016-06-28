@@ -46,7 +46,7 @@ app=rainloop
 	# Use of latest community edition
 	sudo wget https://github.com/RainLoop/rainloop-webmail/releases/download/v1.10.1.127/rainloop-community-1.10.1.127-18d553ae9cd96eb102059b04fdee62e0.zip
 	#Check checksum
-	sudo unzip -q rainloop-community-1.10.1.*.zip -d $rainloop_path/
+	sudo unzip -qq rainloop-community-1.10.1.*.zip -d $rainloop_path/
 	
 	# Install plugins
 	sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
@@ -114,6 +114,8 @@ app=rainloop
 	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
 
 # Set permissions to rainloop directory
+	sudo find $final_path/. -type d -exec chmod 755 {} \;
+	sudo find $final_path/. -type f -exec chmod 644 {} \;
 	sudo chown -R www-data:www-data $final_path
 
 # Install Nginx configuration file
