@@ -1,43 +1,36 @@
-#!/bin/bash
-set -e
-app=rainloop
+# Exit on command errors and treat unset variables as an error
+set -eu
+app=$YNH_APP_INSTANCE_NAME
 
 # Retrieve arguments
 	domain=$1
-	path=$2
+	path=${2%/}
 	is_public=$3
 	password=$4
 	ldap=$5
 	lang=$6
 
-# Removal of trailing /
-	if [ $path = "/" ]
-	then
-		echo "Installation on the root of the domain"
-	else
-		path=${path%/}
-	fi
+# Source app helpers
+. /usr/share/yunohost/helpers
 
 # Check domain/path availability
-	sudo yunohost app checkurl $domain$path -a rainloop
-	if [[ ! $? -eq 0 ]]; then
-		exit 1
-	fi
-
-# Generate random password
-	db_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
+	sudo yunohost app checkurl "${domain}${path}" -a "$app" \
+	|| exit 1
 
 # Use 'rainloop' as database name and user
-	db_user=$app
+	dbuser=$app
+	dbname=$app
+	dbpass=$(ynh_string_random)
 
 # Initialize database and store mysql password for upgrade
-	sudo yunohost app initdb $db_user -p $db_pwd
-	sudo yunohost app setting $app mysqlpwd -v $db_pwd
+	ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
+	ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" \
+		< "${TMPDIR}/SQL/mysql.initial.sql"
+	ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 
 # Create the final path and copy sources
 	final_path=/var/www/$app
 	rainloop_path=${final_path}/app
-	#rainloop_path=${final_path}
 
 	sudo rm -rf $final_path
 	sudo mkdir -p $final_path
@@ -76,7 +69,7 @@ app=rainloop
 	then
 		plugins="$plugins,ynh-ldap-suggestions"
 	fi
-	sudo yunohost app setting $app plugins -v $plugins
+	ynh_app_setting_set "$app" plugins -v $plugins
 	
 	sudo cp ../conf/data/configs/application.ini $application_file
 	sudo sed -i "s@domain.tld@$domain@g"         $application_file
@@ -101,15 +94,8 @@ app=rainloop
 # Hooks for domains are not implemented yet, so new domains will not be added automatically
 
 # install SSO and auto version - at the moment the index is the SSO and rainloop is installed in /app
-	if [ $final_path == $rainloop_path ]
-	then
-		# use modified version of master index.php that implement sso
-		sudo cp ../sources/sso/index.php      $final_path/index.php
-	else
-		# use only sso on master
-		sudo cp ../sources/sso/sso.php                  $final_path/index.php
-		sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
-	fi
+	sudo cp ../sources/sso/sso.php                  $final_path/index.php
+	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
 	sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
 	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
 
@@ -140,7 +126,6 @@ app=rainloop
 		sudo yunohost app setting $app skipped_uris -v "/"
 	fi
 
-# Reload Nginx and regenerate SSOwat conf
-	sudo service php5-fpm reload
-	sudo service nginx reload
-	sudo yunohost app ssowatconf
+# Reload services
+	sudo service php5-fpm restart || true
+	sudo service nginx reload || true
