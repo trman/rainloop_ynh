@@ -5,8 +5,8 @@
         path="/rainloop"    (PATH)
 		is_public="No" (PUBLIC|public=Yes|private=No)
         password="password"   (PASSWORD)
-        ldap="Yes"  (LDAP|Yes|No)
-        lang="English" (LANG|Yes|No)
+        ldap="Yes"  (LDAP)
+        lang="English" (LANG)
     ; Checks
         pkg_linter=1
         setup_sub_dir=1
@@ -31,8 +31,8 @@
         path="/rainloop"    (PATH)
 		is_public="No" (PUBLIC|public=Yes|private=No)
         password="password"   (PASSWORD)
-        ldap="No"  (LDAP|Yes|No)
-        lang="English" (LANG|Yes|No)
+        ldap="No"  (LDAP)
+        lang="English" (LANG)
     ; Checks
         pkg_linter=1
         setup_sub_dir=1
