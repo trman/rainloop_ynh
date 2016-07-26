@@ -9,6 +9,9 @@ app=$YNH_APP_INSTANCE_NAME
 	domain=$(ynh_app_setting_get "$app" domain)
 	path=$(ynh_app_setting_get "$app" path)
 	is_public=$(ynh_app_setting_get "$app" is_public)
+	password=$(ynh_app_setting_get "$app" password)
+	ldap=$(ynh_app_setting_get "$app" ldap)
+	lang=$(ynh_app_setting_get "$app" lang)
 	dp_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
 	db_user=$app
 	plugins=$(ynh_app_setting_get "$app" plugins)
@@ -22,9 +25,9 @@ app=$YNH_APP_INSTANCE_NAME
 	# the old version is not deleted... the new version is in a new path
 
 	# Use of latest community edition
-	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v1.10.1.127/rainloop-community-1.10.1.127-18d553ae9cd96eb102059b04fdee62e0.zip
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v1.10.2.145/rainloop-community-1.10.2.145-74dc686dd82d9f29b0fef8ceb11c2903.zip
 	#Check checksum
-	sudo unzip -qq rainloop-community-1.10.1.*.zip -d $rainloop_path/
+	sudo unzip -qq rainloop-community-1.10.2.*.zip -d $rainloop_path/
 
 	# Update patch to auto load version
 	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
