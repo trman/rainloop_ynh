@@ -6,16 +6,14 @@ set -eu
 # Get multi-instances specific variables
 app=$YNH_APP_INSTANCE_NAME
 
-# Set app specific variables
-dbname=$app
-dbuser=$app
-
 # Source app helpers
 . /usr/share/yunohost/helpers
 
 # Retrieve old app settings
 domain=$(ynh_app_setting_get "$app" domain)
 path=$(ynh_app_setting_get "$app" path)
+dbname=$app
+dbuser=$app
 dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 
 # Check domain/path availability
