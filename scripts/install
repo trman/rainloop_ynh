@@ -109,9 +109,12 @@
 	sudo cp ../conf/data/domains/default.ini $rainloop_path/data/_data_/_default_/domains/default.ini
 
 # install SSO - at the moment the index is the SSO and rainloop is installed in /app
-	sudo cp ../sources/sso/sso.php                  $final_path/index.php
+	sudo cp ../sources/sso/sso.php        $final_path/index.php
 	sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
 	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
+
+# Install PGPback by chtixof to allow users to backup/restore their PGP private keys on the server
+	sudo cp -rf ../sources/pgpback        	  $final_path/.
 
 # Set permissions to rainloop directory
 	sudo find $final_path/. -type d -exec chmod 755 {} \;
