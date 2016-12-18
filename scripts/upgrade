@@ -4,11 +4,11 @@
 
 # Backup the current version of the app, restore it if the upgrade fails
 	sudo yunohost backup delete $app-before-upgrade
-	sudo yunohost backup create --apps $app --name $app-before-upgrade --quiet
+	sudo yunohost backup create --ignore-hooks --apps $app --name $app-before-upgrade --quiet
 	EXIT_PROPERLY () {
 		trap '' EXIT
 		set +eu
-		sudo yunohost backup restore $app-before-upgrade --apps $app --force --quiet	# Restore the backup if upgrade failed
+		sudo yunohost backup restore --ignore-hooks $app-before-upgrade --apps $app --force --quiet	# Restore the backup if upgrade failed
 		ynh_die "Upgrade failed. The app was restored to the way it was before the failed upgrade."
 	}
 	set -eu	
