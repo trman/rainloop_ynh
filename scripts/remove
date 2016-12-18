@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Exit on command errors and treat unset variables as an error
-set -eu
-app=$YNH_APP_INSTANCE_NAME
+	set -eu
+	app=$YNH_APP_INSTANCE_NAME
 
 # Source app helpers
 . /usr/share/yunohost/helpers
@@ -10,7 +10,6 @@ app=$YNH_APP_INSTANCE_NAME
 # Retrieve arguments
   dbuser=$app
   dbname=$app
-  root_pwd=$(sudo cat /etc/yunohost/mysql)
   domain=$(ynh_app_setting_get "$app" domain)
 
 # Drop MySQL database and user
@@ -21,6 +20,9 @@ app=$YNH_APP_INSTANCE_NAME
   sudo rm -rf "/var/www/${app}"
   sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
   [[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+
+# Remove GPG key
+  sudo gpg --batch --delete-key --yes Rainloop
 
 # Reload services
   sudo service php5-fpm restart || true

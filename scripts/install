@@ -1,23 +1,32 @@
 #!/bin/bash
 
 # Exit on command errors and treat unset variables as an error
-set -eu
-app=$YNH_APP_INSTANCE_NAME
-
-# Retrieve arguments
-	domain=$1
-	path=${2%/}
-	is_public=$3
-	password=$4
-	ldap=$5
-	lang=$6
+	set -eu
+	app=$YNH_APP_INSTANCE_NAME
+	rainloop_version='1.10.5.192'
 
 # Source app helpers
-. /usr/share/yunohost/helpers
+	. /usr/share/yunohost/helpers
+
+# Retrieve arguments
+	domain=$YNH_APP_ARG_DOMAIN
+	path=$YNH_APP_ARG_PATH
+	is_public=$YNH_APP_ARG_IS_PUBLIC
+	password=$YNH_APP_ARG_PASSWORD
+	ldap=$YNH_APP_ARG_LDAP
+	lang=$YNH_APP_ARG_LANG
+
+# Correct path
+	if [ "${path:0:1}" != "/" ]; then
+		path="/$path"
+	fi
+	if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
+		path="${path:0:${#path}-1}"
+	fi
 
 # Check domain/path availability
 	sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-	|| exit 1
+		|| ynh_die "Path not available: ${domain}${path}"
 
 # Use 'rainloop' as database name and user
 	dbuser=$app
@@ -36,13 +45,20 @@ app=$YNH_APP_INSTANCE_NAME
 	sudo mkdir -p $final_path
 	sudo mkdir -p $rainloop_path
 
-	# Use of latest community edition
-	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v1.10.2.145/rainloop-community-1.10.2.145-74dc686dd82d9f29b0fef8ceb11c2903.zip
-	#Check checksum
-	sudo unzip -qq rainloop-community-1.10.2.*.zip -d $rainloop_path/
+	# Download sources and keys
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v${rainloop_version}/rainloop-community-${rainloop_version}.zip
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v${rainloop_version}/rainloop-community-${rainloop_version}.zip.asc
+	sudo wget -q https://repository.rainloop.net/RainLoop.asc
+	# Verify the integrity of sources
+	sudo gpg --import --quiet RainLoop.asc
+	sudo gpg --verify --quiet rainloop-community-${rainloop_version}.zip.asc rainloop-community-${rainloop_version}.zip || ynh_die "Download failed"
+	sudo gpg --batch --delete-key --yes Rainloop
+	# Unzip
+	sudo unzip -qq rainloop-community-${rainloop_version}.zip -d $rainloop_path/
 	
 	# Install plugins
 	sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
+	sudo cp -rf ../sources/plugins/auto-domain-grab $rainloop_path/data/_data_/_default_/plugins/.
 	sudo cp -rf ../sources/plugins/ynh-login-mapping $rainloop_path/data/_data_/_default_/plugins/.
 	sudo cp -rf ../sources/plugins/ynh-ldap-suggestions $rainloop_path/data/_data_/_default_/plugins/.
 
@@ -61,13 +77,13 @@ app=$YNH_APP_INSTANCE_NAME
         *)
             lang="en"
 	esac
-	
+	ynh_app_setting_set "$app" lang "$lang"
 	
 	# Set plugins
-	plugins="ynh-login-mapping"
+	plugins="auto-domain-grab"		# This plugin is trying to automatically grab unknown domains if users want to add external email accounts
 	if [ "$ldap" = "Yes" ];
 	then
-		plugins="$plugins,ynh-ldap-suggestions"
+		plugins="$plugins,ynh-ldap-suggestions"		# This plugin is to suggest YunoHost users in recipients list
 	fi
 	ynh_app_setting_set "$app" plugins "$plugins"
 	
@@ -80,22 +96,20 @@ app=$YNH_APP_INSTANCE_NAME
 
 # Set admin password
 	sudo php ../conf/config.php --index="$rainloop_path/index.php" --password="$password"
+	ynh_app_setting_set "$app" password "$password"
 
 # Add default domain configs by looping through all the domains already added
 	sudo mkdir -p $rainloop_path/data/_data_/_default_/domains/
-
 	# get list of ldap domains
 	alldomains=`ldapsearch -LLL -x -b ou=domains,dc=yunohost,dc=org -s one "objectclass=top" virtualdomain | grep -v "dn:" | sed "s/virtualdomain://" `
 	for ldomain in $alldomains ; do
 		sudo cp ../conf/data/domains/domain.tld.ini $rainloop_path/data/_data_/_default_/domains/$ldomain.ini
 	done
-	sudo cp ../conf/data/domains/disabled $rainloop_path/data/_data_/_default_/domains/disabled
+	# Add wildcard domain for auto-grab
+	sudo cp ../conf/data/domains/default.ini $rainloop_path/data/_data_/_default_/domains/default.ini
 
-# Hooks for domains are not implemented yet, so new domains will not be added automatically
-
-# install SSO and auto version - at the moment the index is the SSO and rainloop is installed in /app
+# install SSO - at the moment the index is the SSO and rainloop is installed in /app
 	sudo cp ../sources/sso/sso.php                  $final_path/index.php
-	sudo cp ../sources/patch/index_auto_version.php $rainloop_path/index.php
 	sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
 	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
 
