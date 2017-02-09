@@ -1,18 +1,29 @@
 #!/bin/bash
-set -e
-app=rainloop
 
-db_user=$app
-db_name=$app
-root_pwd=$(sudo cat /etc/yunohost/mysql)
-domain=$(sudo yunohost app setting $app domain)
+# Exit on command errors and treat unset variables as an error
+	set -eu
+	app=$YNH_APP_INSTANCE_NAME
 
-mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
-sudo rm -rf /var/www/$app
-sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
-sudo rm -f /etc/php5/fpm/pool.d/$app.conf
+# Source app helpers
+. /usr/share/yunohost/helpers
 
-sudo service php5-fpm restart
-sudo service nginx reload
-sudo yunohost app ssowatconf
+# Retrieve arguments
+  dbuser=$app
+  dbname=$app
+  domain=$(ynh_app_setting_get "$app" domain)
 
+# Drop MySQL database and user
+  ynh_mysql_drop_db "$dbname" 2>&1 || true
+  ynh_mysql_drop_user "$dbuser" 2>&1 || true
+
+# Delete app directory and configurations
+  sudo rm -rf "/var/www/${app}"
+  sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
+  [[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+
+# Remove GPG key
+  sudo gpg --batch --delete-key --yes Rainloop
+
+# Reload services
+  sudo service php5-fpm restart || true
+  sudo service nginx reload || true
