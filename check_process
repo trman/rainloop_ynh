@@ -3,10 +3,10 @@
     ; Manifest
         domain="domain.tld"    (DOMAIN)
         path="/rainloop"    (PATH)
-		is_public="No" (PUBLIC|public=Yes|private=No)
+        is_public="No" (PUBLIC|public=Yes|private=No)
         password="password"   (PASSWORD)
-        ldap="Yes"  (LDAP)
-        lang="English" (LANG)
+        ldap="Yes"
+        lang="English"
     ; Checks
         pkg_linter=1
         setup_sub_dir=1
@@ -29,10 +29,10 @@
     ; Manifest
         domain="domain.tld"    (DOMAIN)
         path="/rainloop"    (PATH)
-		is_public="No" (PUBLIC|public=Yes|private=No)
+        is_public="No" (PUBLIC|public=Yes|private=No)
         password="password"   (PASSWORD)
-        ldap="No"  (LDAP)
-        lang="English" (LANG)
+        ldap="No"
+        lang="English"
     ; Checks
         pkg_linter=1
         setup_sub_dir=1
