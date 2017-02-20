@@ -22,6 +22,9 @@
 
 # Copy the conf files
 	ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf" "nginx.conf"
+	
+# Copy dedicated php-fpm process to backup folder
+        ynh_backup "/etc/php5/fpm/pool.d/$app.conf" "php-fpm.conf"
 
 # Dump the database
 	mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./dump.sql
