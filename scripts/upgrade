@@ -17,11 +17,11 @@
 		sudo yunohost backup restore --ignore-hooks $app-before-upgrade --apps $app --force --quiet	# Restore the backup if upgrade failed
 		ynh_die "Upgrade failed. The app was restored to the way it was before the failed upgrade."
 	}
-	set -eu	
+	set -eu
 	trap EXIT_PROPERLY ERR
 
 # Source app helpers
-. /usr/share/yunohost/helpers
+	source /usr/share/yunohost/helpers
 
 # Retrieve arguments
 	domain=$(ynh_app_setting_get "$app" domain)
@@ -53,7 +53,7 @@
 	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v${rainloop_version}/rainloop-community-${rainloop_version}.zip
 	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v${rainloop_version}/rainloop-community-${rainloop_version}.zip.asc
 	sudo wget -q https://repository.rainloop.net/RainLoop.asc
-	# Verify the integrity of sources	
+	# Verify the integrity of sources
 	sudo gpg --import --quiet RainLoop.asc
 	sudo gpg --verify --quiet rainloop-community-${rainloop_version}.zip.asc rainloop-community-${rainloop_version}.zip
 	sudo gpg --batch --delete-key --yes Rainloop
@@ -95,5 +95,5 @@
 	sudo chmod 644                      $finalphpconf
 
 # Reload services
-	sudo service php5-fpm restart || true
+	sudo service php5-fpm reload || true
 	sudo service nginx reload || true

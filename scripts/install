@@ -55,7 +55,7 @@
 	sudo gpg --batch --delete-key --yes Rainloop
 	# Unzip
 	sudo unzip -qq rainloop-community-${rainloop_version}.zip -d $rainloop_path/
-	
+
 	# Install plugins
 	sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
 	sudo cp -rf ../sources/plugins/auto-domain-grab $rainloop_path/data/_data_/_default_/plugins/.
@@ -78,7 +78,7 @@
             lang="en"
 	esac
 	ynh_app_setting_set "$app" lang "$lang"
-	
+
 	# Set plugins
 	plugins="auto-domain-grab"		# This plugin is trying to automatically grab unknown domains if users want to add external email accounts
 	if [ "$ldap" = "Yes" ];
@@ -86,7 +86,7 @@
 		plugins="$plugins,ynh-ldap-suggestions"		# This plugin is to suggest YunoHost users in recipients list
 	fi
 	ynh_app_setting_set "$app" plugins "$plugins"
-	
+
 	sudo cp ../conf/data/configs/application.ini $application_file
 	sudo sed -i "s@domain.tld@$domain@g"         $application_file
 	sudo sed -i "s@MYSQLUSER@$dbuser@g"         $application_file
@@ -144,5 +144,5 @@
 	fi
 
 # Reload services
-	sudo service php5-fpm restart || true
+	sudo service php5-fpm reload || true
 	sudo service nginx reload || true

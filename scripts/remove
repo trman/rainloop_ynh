@@ -5,25 +5,25 @@
 	app=$YNH_APP_INSTANCE_NAME
 
 # Source app helpers
-. /usr/share/yunohost/helpers
+	source /usr/share/yunohost/helpers
 
 # Retrieve arguments
-  dbuser=$app
-  dbname=$app
-  domain=$(ynh_app_setting_get "$app" domain)
+	dbuser=$app
+	dbname=$app
+	domain=$(ynh_app_setting_get "$app" domain)
 
 # Drop MySQL database and user
-  ynh_mysql_drop_db "$dbname" 2>&1 || true
-  ynh_mysql_drop_user "$dbuser" 2>&1 || true
+	ynh_mysql_drop_db "$dbname" 2>&1 || true
+	ynh_mysql_drop_user "$dbuser" 2>&1 || true
 
 # Delete app directory and configurations
-  sudo rm -rf "/var/www/${app}"
-  sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
-  [[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+	sudo rm -rf "/var/www/${app}"
+	sudo rm -f "/etc/php5/fpm/pool.d/${app}.conf"
+	[[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
 
 # Remove GPG key
-  sudo gpg --batch --delete-key --yes Rainloop
+	sudo gpg --batch --delete-key --yes Rainloop
 
 # Reload services
-  sudo service php5-fpm restart || true
-  sudo service nginx reload || true
+	sudo service php5-fpm reload || true
+	sudo service nginx reload || true
