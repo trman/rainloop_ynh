@@ -28,3 +28,4 @@
 
 # Dump the database
 	mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./dump.sql
+	ynh_backup "./dump.sql" "dump.sql"
