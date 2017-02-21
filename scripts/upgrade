@@ -3,7 +3,13 @@
 	rainloop_version='1.10.5.192'
 
 # Backup the current version of the app, restore it if the upgrade fails
-	sudo yunohost backup delete $app-before-upgrade
+# Check if old backup exists
+        if sudo yunohost backup list | grep -q $app-before-upgrade > /dev/null 2>&1;
+        then
+                sudo yunohost backup delete $app-before-upgrade
+        else
+                echo "no old backup to delete"
+        fi
 	sudo yunohost backup create --ignore-hooks --apps $app --name $app-before-upgrade --quiet
 	EXIT_PROPERLY () {
 		trap '' EXIT
