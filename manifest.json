@@ -9,9 +9,9 @@
     "url": "http://rainloop.net/",
     "license": "free",
     "maintainer": {
-        "name": "scith, Djip007"
+        "name": "scith, Djip007, polytan02"
     },
-    "multi_instance": false,
+    "multi_instance": true,
     "services": [
         "nginx",
         "php5-fpm",
