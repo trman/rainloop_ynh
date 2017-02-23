@@ -89,7 +89,7 @@
 
 	sudo cp ../conf/data/configs/application.ini $application_file
 	sudo sed -i "s@domain.tld@$domain@g"         $application_file
-	sudo sed -i "s@MYSQLUSER@$dbuser@g"         $application_file
+	sudo sed -i "s@MYSQLUSER@$dbuser@g"          $application_file
 	sudo sed -i "s@MYSQLPASSWORD@$dbpass@g"      $application_file
 	sudo sed -i "s@LANGTOCHANGE@$lang@g"         $application_file
 	sudo sed -i "s@PLUGINSTOENABLE@$plugins@g"   $application_file
