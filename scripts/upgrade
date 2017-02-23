@@ -83,10 +83,11 @@
 	nginx_conf_file=/etc/nginx/conf.d/$domain.d/$app.conf
 	sudo cp ../conf/nginx.conf $nginx_conf_file
         if [ $path = "/" ]; then
-            sudo sed -i "s@PATHTOCHANGE@@g"          $nginx_conf_file
+            sudo sed -i "s@ROOTTOCHANGE@@g"          $nginx_conf_file
         else
-            sudo sed -i "s@PATHTOCHANGE@$path@g"     $nginx_conf_file
+            sudo sed -i "s@ROOTTOCHANGE@$path@g"     $nginx_conf_file
         fi
+        sudo sed -i "s@PATHTOCHANGE@$path@g"          $nginx_conf_file
 	sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" $nginx_conf_file
 	sudo sed -i "s@NAMETOCHANGE@$app@g"          $nginx_conf_file
 	sudo chown root:                             $nginx_conf_file
