@@ -1,51 +1,99 @@
 #!/bin/bash
+	app=$YNH_APP_INSTANCE_NAME
+	rainloop_version='1.10.5.192'
 
-app=rainloop
+# Backup the current version of the app, restore it if the upgrade fails
+# Check if old backup exists
+        if sudo yunohost backup list | grep -q $app-before-upgrade > /dev/null 2>&1;
+        then
+                sudo yunohost backup delete $app-before-upgrade
+        else
+                echo "no old backup to delete"
+        fi
+	sudo yunohost backup create --ignore-hooks --apps $app --name $app-before-upgrade --quiet
+	EXIT_PROPERLY () {
+		trap '' EXIT
+		set +eu
+		sudo yunohost backup restore --ignore-hooks $app-before-upgrade --apps $app --force --quiet	# Restore the backup if upgrade failed
+		ynh_die "Upgrade failed. The app was restored to the way it was before the failed upgrade."
+	}
+	set -eu
+	trap EXIT_PROPERLY ERR
+
+# Source app helpers
+	source /usr/share/yunohost/helpers
 
 # Retrieve arguments
-domain=$(sudo yunohost app setting $app domain)
-path=$(sudo yunohost app setting $app path)
-is_public=$(sudo yunohost app setting $app is_public)
-dp_pwd=$(sudo yunohost app setting rainloop mysqlpwd)
-db_user=$app
+	domain=$(ynh_app_setting_get "$app" domain)
+	path=$(ynh_app_setting_get "$app" path)
+	is_public=$(ynh_app_setting_get "$app" is_public)
+	password=$(ynh_app_setting_get "$app" password)
+	ldap=$(ynh_app_setting_get "$app" ldap)
+	lang=$(ynh_app_setting_get "$app" lang)
+	dp_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
+	db_user=$app
+	plugins=$(ynh_app_setting_get "$app" plugins)
 
-# Initialize database and store mysql password for upgrade
-root_pwd=$(sudo cat /etc/yunohost/mysql)
-mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
-sudo yunohost app initdb $db_user -p $db_pwd
+# Correct path
+	if [ "${path:0:1}" != "/" ]; then
+		path="/$path"
+	fi
+	if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
+		path="${path:0:${#path}-1}"
+	fi
 
-# Copy files to the right place
-final_path=/var/www/$app
-#sudo rm -rf $final_path/*
-# Use of latest community edition
-sudo wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O $final_path/rainloop.zip
-sudo unzip -ou $final_path/rainloop.zip -d $final_path/
-sudo rm $final_path/rainloop.zip
+# no update for db now...
+
+# Copy the new sources
+	final_path=/var/www/$app
+	rainloop_path=${final_path}/app
+	sudo rm -rf $rainloop_path/rainloop		# Remove the previous Rainloop files except data
+
+	# Download sources and keys
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v${rainloop_version}/rainloop-community-${rainloop_version}.zip
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v${rainloop_version}/rainloop-community-${rainloop_version}.zip.asc
+	sudo wget -q https://repository.rainloop.net/RainLoop.asc
+	# Verify the integrity of sources
+	sudo gpg --import --quiet RainLoop.asc
+	sudo gpg --verify --quiet rainloop-community-${rainloop_version}.zip.asc rainloop-community-${rainloop_version}.zip
+	sudo gpg --batch --delete-key --yes Rainloop
+	# Unzip and overwrite
+	sudo unzip -qq -o rainloop-community-${rainloop_version}.zip -d $rainloop_path/
+
+	# Update ynh plugins:
+	sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
+	sudo cp -rf ../sources/plugins/auto-domain-grab $rainloop_path/data/_data_/_default_/plugins/.
+	sudo cp -rf ../sources/plugins/ynh-login-mapping $rainloop_path/data/_data_/_default_/plugins/.
+	sudo cp -rf ../sources/plugins/ynh-ldap-suggestions $rainloop_path/data/_data_/_default_/plugins/.
+
+# update SSO
+	sudo cp ../sources/sso/sso.php        $final_path/index.php
+	sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
+	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
+
+# Install PGPback by chtixof to allow users to backup/restore their PGP private keys on the server
+	sudo cp -rf ../sources/pgpback        	  $final_path/.
 
 # Set permissions to rainloop directory
-sudo chown -R www-data:www-data /var/www/$app
+	sudo find $final_path/. -type d -exec chmod 755 {} \;
+	sudo find $final_path/. -type f -exec chmod 644 {} \;
+	sudo chown -R www-data:www-data $final_path
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-sed -i "s@PATHTOCHANGE@$path@g" ../conf/nginx.conf
-sed -i "s@ALIASTOCHANGE@$final_path/@g" ../conf/nginx.conf
-sed -i "s@NAMETOCHANGE@$app@g" ../conf/nginx.conf
-sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
+# Update Nginx configuration file
+	nginx_conf_file=/etc/nginx/conf.d/$domain.d/$app.conf
+	sudo cp ../conf/nginx.conf $nginx_conf_file
+	sudo sed -i "s@PATHTOCHANGE@$path@g"         $nginx_conf_file
+	sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" $nginx_conf_file
+	sudo sed -i "s@NAMETOCHANGE@$app@g"          $nginx_conf_file
+	sudo chown root:                             $nginx_conf_file
+	sudo chmod 644                               $nginx_conf_file
 
-sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
-finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $finalphpconf
-sudo chown root: $finalphpconf
-sudo chmod 644 $finalphpconf
+	finalphpconf=/etc/php5/fpm/pool.d/$app.conf
+	sudo cp ../conf/php-fpm.conf        $finalphpconf
+	sudo sed -i "s@NAMETOCHANGE@$app@g" $finalphpconf
+	sudo chown root:                    $finalphpconf
+	sudo chmod 644                      $finalphpconf
 
-# Make app public if necessary
-sudo yunohost app setting $app is_public -v "$is_public"
-if [ "$is_public" = "Yes" ];
-then
-    sudo yunohost app setting $app skipped_uris -v "/"
-fi
-
-
-# Reload Nginx and regenerate SSOwat conf
-sudo service php5-fpm reload
-sudo service nginx reload
-sudo yunohost app ssowatconf
+# Reload services
+	sudo service php5-fpm reload || true
+	sudo service nginx reload || true

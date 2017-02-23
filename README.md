@@ -1,50 +1,43 @@
 # Rainloop for YunoHost 
  
-* [rainloop](http://rainloop.net/ )
+* [rainloop](http://rainloop.net/ ): 1.10.5.192
  
 ## English
 Rainloop is a lightweight webmail. 
  
-To configure it, go to http://DOMAIN.TLD/rainloop/?admin 
+To configure it, go to http://DOMAIN.TLD/rainloop/app/?admin 
  
 - The default login is : admin 
-- The default password is : 12345 
+- The default password is : Password chosen during install 
+- If you lost the admin password, you can retrieve it using ``sudo yunohost app settings rainloop password``
  
-To configure your instance, go to the admin panel, then "Domains" and add a domain in accord with your mail server setup. 
- 
-To access the database (required for contacts), the paramaters are the following : 
-- Database name : rainloop 
-- Password : the_database_password_indicated_at_installation 
- 
-Once this is done in the admin interface, each user can add a remote carddav server from their own parameters interface. 
-If you use baikal, the CardDav address is : 
-https://DOMAIN.TLD/baikal/card.php/addressbooks/USER/default/
- 
-- to upgrade the app once a new rainloop version is available, simply run in a local shell via ssh or otherwise :
+Each user can add a remote carddav server from their own parameters interface. 
 
-``sudo yunohost app upgrade -u https://github.com/polytan02/rainloop_ynh rainloop``
+- If you use baikal, the CardDav address is: https://DOMAIN.TLD/baikal/card.php/addressbooks/USER/default/
+- If you use NextCloud, the CardDav address is: https://DOMAIN.TLD/nextcloud/remote.php/carddav/addressbooks/USER/contacts
+ 
+Rainloop saves your PGP private keys in the browser storage. This means that you will loose your private keys if you clear your browser storage (e.g., private browsing, different computer...). This packages integrates [PGPback by chtixof](https://github.com/chtixof/pgpback_ynh) so you can store your PGP private keys on the server securely. Go to **http://DOMAIN.TLD/rainloop/pgpback** to backup your PGP keys on the server or restore them.
+
+To upgrade the app once a new rainloop version is available, simply run in a local shell via ssh or otherwise :
+``sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/rainloop_ynh rainloop``
 
  
 ## Français 
 Rainloop est un webmail simple et léger. 
  
-Pour le configurer après l'installation, veuillez vous rendre sur http://DOMAIN.TLD/rainloop/?admin 
+Pour le configurer après l'installation, veuillez vous rendre sur http://DOMAIN.TLD/rainloop/app/?admin 
  
-- Le nom d'utilisateur admin par défaut est : admin 
-- Le mot de passe admin par défaut est : 12345 
+- Le nom d'utilisateur admin par défaut est : admin
+- Le mot de passe admin par défaut est : Mot de passe choisi lors de l'installation 
+- Si vous avez oublié votre mot de passe, vous pouvez le retrouver avec ``sudo yunohost app settings rainloop password``
  
-Pour configurer votre instance, connectez-vous en admin, puis allez dans "Domains" et ajoutez votre domaine en accord avec la configuration de votre serveur email. 
+Chaque utilisateur peut ajouter un carnet d'adresse distant CardDav via leur propre paramètres.
  
-Pour accéder à la base de donnée (necessaire pour gérer les contacts), les paramètres sont les suivants : 
-- Nom de la base de donnée : rainloop 
-- Mot de passe : Le_mot_de_passe_de_la_base_de_donnée_renseigné_lors_de_l'installation 
- 
-Une fois ceci fait depuis l'interface d'administration, chaque utilisateur peut ajouter un carnet d'adresse distant CardDav via leur propre paramètres. 
-Si vous utilisez Baikal, l'adresse à renseigner est du type : 
-https://DOMAIN.TLD/baikal/card.php/addressbooks/UTILISATEUR/default/ 
+- Si vous utilisez Baikal, l'adresse à renseigner est du type : https://DOMAIN.TLD/baikal/card.php/addressbooks/UTILISATEUR/default/ 
+- Si vous utilisez NextCloud, l'adresse à renseigner est du type : https://DOMAIN.TLD/nextcloud/remote.php/carddav/addressbooks/USER/contacts
 
+Rainloop stocke les clés PGP privées dans le stockage de navigateur. Cela implique que vos clés seront perdues quand vous videz le stockage de navigateur (navigation incognito, changement d'ordinateur, ...). Ce paquet intègre [PGPback de chtixof](https://github.com/chtixof/pgpback_ynh) pour que vous puissiez stocker vos clés privées PGP de manière sécurisée sur le serveur. Rendez-vous **http://DOMAIN.TLD/rainloop/pgpback** pour stocker vos clés privées PGP sur le serveur ou les restaurer dans un nouveau navigateur.
 
-- pour mettre à jour rainloop lorsqu'une nouvelle version est disponible, lancez en console locale (ssh ou autre) :
-
-``sudo yunohost app upgrade -u https://github.com/polytan02/rainloop_ynh rainloop``
+Pour mettre à jour rainloop lorsqu'une nouvelle version est disponible, lancez en console locale (ssh ou autre) :
+``sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/rainloop_ynh rainloop``
 

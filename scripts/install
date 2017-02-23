@@ -1,80 +1,148 @@
 #!/bin/bash
 
-app=rainloop
+# Exit on command errors and treat unset variables as an error
+	set -eu
+	app=$YNH_APP_INSTANCE_NAME
+	rainloop_version='1.10.5.192'
+
+# Source app helpers
+	. /usr/share/yunohost/helpers
 
 # Retrieve arguments
-domain=$1
-path=$2
-is_public=$3
+	domain=$YNH_APP_ARG_DOMAIN
+	path=$YNH_APP_ARG_PATH
+	is_public=$YNH_APP_ARG_IS_PUBLIC
+	password=$YNH_APP_ARG_PASSWORD
+	ldap=$YNH_APP_ARG_LDAP
+	lang=$YNH_APP_ARG_LANG
 
-# Removal of trailing /
-if [ $path = "/" ]
-then
-	#sitename="root"
-	echo "Installation on the root of the domain"
-else
-	# sitename == path without any "/"
-	#sitename=$(echo $path | cut -d '/' -f 2)
-	# Removal of trailing /
-	# path can be null but not really an issue for the remaining commands
-	path=${path%/}
-fi
-
-
+# Correct path
+	if [ "${path:0:1}" != "/" ]; then
+		path="/$path"
+	fi
+	if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
+		path="${path:0:${#path}-1}"
+	fi
 
 # Check domain/path availability
-sudo yunohost app checkurl $domain$path -a rainloop
-if [[ ! $? -eq 0 ]]; then
-    exit 1
-fi
-
-# Generate random password
-#db_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
-db_pwd=$4
+	sudo yunohost app checkurl "${domain}${path}" -a "$app" \
+		|| ynh_die "Path not available: ${domain}${path}"
 
 # Use 'rainloop' as database name and user
-db_user=$app
+	dbuser=$app
+	dbname=$app
+	dbpass=$(ynh_string_random)
 
 # Initialize database and store mysql password for upgrade
-sudo yunohost app initdb $db_user -p $db_pwd
-sudo yunohost app setting rainloop mysqlpwd -v $db_pwd
+	ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
+	ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 
-#mysql -u $db_user -p$db_pwd $db_user < ../sources/plugins/automatic_addressbook/SQL/mysql.initial.sql
+# Create the final path and copy sources
+	final_path=/var/www/$app
+	rainloop_path=${final_path}/app
 
-# Copy files to the right place
-final_path=/var/www/$app
-sudo rm -rf $final_path
-sudo mkdir -p $final_path
-# Use of latest community edition
-sudo wget http://repository.rainloop.net/v2/webmail/rainloop-community-latest.zip -O $final_path/rainloop.zip
-sudo unzip $final_path/rainloop.zip -d $final_path/
-sudo rm $final_path/rainloop.zip
+	sudo rm -rf $final_path
+	sudo mkdir -p $final_path
+	sudo mkdir -p $rainloop_path
+
+	# Download sources and keys
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v${rainloop_version}/rainloop-community-${rainloop_version}.zip
+	sudo wget -q https://github.com/RainLoop/rainloop-webmail/releases/download/v${rainloop_version}/rainloop-community-${rainloop_version}.zip.asc
+	sudo wget -q https://repository.rainloop.net/RainLoop.asc
+	# Verify the integrity of sources
+	sudo gpg --import --quiet RainLoop.asc
+	sudo gpg --verify --quiet rainloop-community-${rainloop_version}.zip.asc rainloop-community-${rainloop_version}.zip || ynh_die "Download failed"
+	sudo gpg --batch --delete-key --yes Rainloop
+	# Unzip
+	sudo unzip -qq rainloop-community-${rainloop_version}.zip -d $rainloop_path/
+
+	# Install plugins
+	sudo mkdir -p $rainloop_path/data/_data_/_default_/plugins
+	sudo cp -rf ../sources/plugins/auto-domain-grab $rainloop_path/data/_data_/_default_/plugins/.
+	sudo cp -rf ../sources/plugins/ynh-login-mapping $rainloop_path/data/_data_/_default_/plugins/.
+	sudo cp -rf ../sources/plugins/ynh-ldap-suggestions $rainloop_path/data/_data_/_default_/plugins/.
+
+# Autoconfig
+	sudo mkdir -p $rainloop_path/data/_data_/_default_/configs/
+	application_file=$rainloop_path/data/_data_/_default_/configs/application.ini
+
+	# Set lang => define from install manifest
+	case "$lang" in
+        Francais)
+            lang="fr"
+            ;;
+        English)
+            lang="en"
+            ;;
+        *)
+            lang="en"
+	esac
+	ynh_app_setting_set "$app" lang "$lang"
+
+	# Set plugins
+	plugins="auto-domain-grab"		# This plugin is trying to automatically grab unknown domains if users want to add external email accounts
+	if [ "$ldap" = "Yes" ];
+	then
+		plugins="$plugins,ynh-ldap-suggestions"		# This plugin is to suggest YunoHost users in recipients list
+	fi
+	ynh_app_setting_set "$app" plugins "$plugins"
+
+	sudo cp ../conf/data/configs/application.ini $application_file
+	sudo sed -i "s@domain.tld@$domain@g"         $application_file
+	sudo sed -i "s@MYSQLUSER@$dbuser@g"         $application_file
+	sudo sed -i "s@MYSQLPASSWORD@$dbpass@g"      $application_file
+	sudo sed -i "s@LANGTOCHANGE@$lang@g"         $application_file
+	sudo sed -i "s@PLUGINSTOENABLE@$plugins@g"   $application_file
+
+# Set admin password
+	sudo php ../conf/config.php --index="$rainloop_path/index.php" --password="$password"
+	ynh_app_setting_set "$app" password "$password"
+
+# Add default domain configs by looping through all the domains already added
+	sudo mkdir -p $rainloop_path/data/_data_/_default_/domains/
+	# get list of ldap domains
+	alldomains=`ldapsearch -LLL -x -b ou=domains,dc=yunohost,dc=org -s one "objectclass=top" virtualdomain | grep -v "dn:" | sed "s/virtualdomain://" `
+	for ldomain in $alldomains ; do
+		sudo cp ../conf/data/domains/domain.tld.ini $rainloop_path/data/_data_/_default_/domains/$ldomain.ini
+	done
+	# Add wildcard domain for auto-grab
+	sudo cp ../conf/data/domains/default.ini $rainloop_path/data/_data_/_default_/domains/default.ini
+
+# install SSO - at the moment the index is the SSO and rainloop is installed in /app
+	sudo cp ../sources/sso/sso.php        $final_path/index.php
+	sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
+	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
+
+# Install PGPback by chtixof to allow users to backup/restore their PGP private keys on the server
+	sudo cp -rf ../sources/pgpback        	  $final_path/.
 
 # Set permissions to rainloop directory
-# sudo mkdir -p $final_path/logs
-sudo chown -R www-data:www-data $final_path
+	sudo find $final_path/. -type d -exec chmod 755 {} \;
+	sudo find $final_path/. -type f -exec chmod 644 {} \;
+	sudo chown -R www-data:www-data $final_path
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-sed -i "s@PATHTOCHANGE@$path@g" ../conf/nginx.conf
-sed -i "s@ALIASTOCHANGE@$final_path/@g" ../conf/nginx.conf
-sed -i "s@NAMETOCHANGE@$app@g" ../conf/nginx.conf
-sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
+# Install Nginx configuration file
+	nginx_conf_file=/etc/nginx/conf.d/$domain.d/$app.conf
+	sudo cp ../conf/nginx.conf $nginx_conf_file
+	sudo sed -i "s@PATHTOCHANGE@$path@g"         $nginx_conf_file
+	sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" $nginx_conf_file
+	sudo sed -i "s@NAMETOCHANGE@$app@g"          $nginx_conf_file
+	sudo chown root:                             $nginx_conf_file
+	sudo chmod 644                               $nginx_conf_file
 
-sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
-finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $finalphpconf
-sudo chown root: $finalphpconf
-sudo chmod 644 $finalphpconf
+	finalphpconf=/etc/php5/fpm/pool.d/$app.conf
+	sudo cp ../conf/php-fpm.conf        $finalphpconf
+	sudo sed -i "s@NAMETOCHANGE@$app@g" $finalphpconf
+	sudo chown root:                    $finalphpconf
+	sudo chmod 644                      $finalphpconf
 
 # Make app public if necessary
-sudo yunohost app setting $app is_public -v "$is_public"
-if [ "$is_public" = "Yes" ];
-then
-    sudo yunohost app setting $app skipped_uris -v "/"
-fi
+	ynh_app_setting_set "$app" is_public "$is_public"
+	if [ "$is_public" = "Yes" ];
+	then
+		ynh_app_setting_set "$app" skipped_uris "/"
+	fi
 
-
-# Reload Nginx and regenerate SSOwat conf
-sudo service php5-fpm reload
-sudo service nginx reload
-sudo yunohost app ssowatconf
+# Reload services
+	sudo service php5-fpm reload || true
+	sudo service nginx reload || true

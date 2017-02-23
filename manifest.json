@@ -1,16 +1,25 @@
 {
+    "packaging_format": 1,
     "name": "Rainloop",
     "id": "rainloop",
     "description": {
-        "en": "Lightweight webmail",
-        "fr": "Webmail leger"
+        "en": "Lightweight multi-account webmail",
+        "fr": "Webmail léger multi-comptes"
     },
     "url": "http://rainloop.net/",
+    "license": "free",
     "maintainer": {
-        "name": "polytan02",
-        "email": "polytan02@mcgva.org"
+        "name": "scith, Djip007"
     },
-    "multi_instance": "false",
+    "multi_instance": false,
+    "services": [
+        "nginx",
+        "php5-fpm",
+        "mysql"
+    ],
+    "requirements": {
+        "yunohost": ">= 2.4.0"
+     },
     "arguments": {
         "install" : [
             {
@@ -35,20 +44,37 @@
 	    {
                "name": "is_public",
                 "ask": {
-                    "en": "Is it a public application ?",
+                    "en": "Is it a public application?",
                     "fr": "Est-ce une page publique ?"
                 },
                 "choices": ["Yes", "No"],
                 "default": "No"
 	    },
-            {
-                "name": "dp_pwd",
+	    {
+                "name": "password",
                 "type": "password",
                 "ask": {
-                    "en": "Choose a password for Rainloop MySQL database. Please note that the table and the user will be rainloop (case sensitive - used for carddav)",
-                    "fr": "Choisissez un mot de passe pour la base MySQL de Rainloop. Veuillez noter que la table et l'utilisateur créés seront rainloop (sensible à la casse - utilisé pour carddav)"
+                    "en": "Choose a strong password for the 'admin' user",
+                    "fr": "Choisissez un mot de passe fort pour l'administrateur 'admin'"
+                }
+	    },
+	    {
+               "name": "ldap",
+                "ask": {
+                    "en": "Do you want to add YunoHost users to the recipients suggestions?",
+                    "fr": "Souhaitez-vous ajouter les utilisateurs YunoHost dans les suggestions de destinataires ?"
                 },
-                "example": "my_strong_password"
+                "choices": ["Yes", "No"],
+                "default": "Yes"
+	    },
+	    {
+               "name": "lang",
+                "ask": {
+                    "en": "Select default language",
+                    "fr": "Definir la langue par defaut"
+                },
+                "choices": ["English", "Francais"],
+                "default": "English"
 	    }
         ]
     }
