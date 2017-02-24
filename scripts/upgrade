@@ -2,6 +2,10 @@
 	app=$YNH_APP_INSTANCE_NAME
 	rainloop_version=$(cat ../sources/rainloop_version)
 
+# Source app helpers
+	source /usr/share/yunohost/helpers
+	source .fonctions
+
 # Backup the current version of the app, restore it if the upgrade fails
 # Check if old backup exists
         if sudo yunohost backup list | grep -q $app-before-upgrade > /dev/null 2>&1;
@@ -19,10 +23,6 @@
 	}
 	set -eu
 	trap EXIT_PROPERLY ERR
-
-# Source app helpers
-	source /usr/share/yunohost/helpers
-	source .fonctions
 
 # Retrieve arguments
 	domain=$(ynh_app_setting_get "$app" domain)

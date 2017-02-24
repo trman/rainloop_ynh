@@ -4,12 +4,9 @@
 	set -eu
 	app=$YNH_APP_INSTANCE_NAME
 
-# Set app specific variables
-	dbname=$app
-	dbuser=$app
-
 # Source app helpers
 	source /usr/share/yunohost/helpers
+	source .fonctions
 
 # Retrieve app settings
 	domain=$(ynh_app_setting_get "$app" domain)
@@ -25,6 +22,10 @@
 
 # Copy dedicated php-fpm process to backup folder
         ynh_backup "/etc/php5/fpm/pool.d/${app}.conf" "php-fpm.conf"
+
+# Set app specific variables
+	dbname=$app
+	dbuser=$app
 
 # Dump the database
 	mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./db.sql

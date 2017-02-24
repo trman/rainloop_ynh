@@ -8,6 +8,7 @@
 
 # Source app helpers
 	source /usr/share/yunohost/helpers
+        source .fonctions
 
 # Retrieve old app settings
 	domain=$(ynh_app_setting_get "$app" domain)
