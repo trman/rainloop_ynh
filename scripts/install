@@ -1,12 +1,16 @@
 #!/bin/bash
 
 # Exit on command errors and treat unset variables as an error
-	set -eu
+# It also activate set -eu
+	source .fonctions
+	TRAP_ON
+
+# Initial data
 	app=$YNH_APP_INSTANCE_NAME
-	rainloop_version='1.10.5.192'
+	rainloop_version=$(cat ../sources/rainloop_version)
 
 # Source app helpers
-	. /usr/share/yunohost/helpers
+	source /usr/share/yunohost/helpers
 
 # Retrieve arguments
 	domain=$YNH_APP_ARG_DOMAIN
@@ -16,17 +20,11 @@
 	ldap=$YNH_APP_ARG_LDAP
 	lang=$YNH_APP_ARG_LANG
 
-# Correct path
-	if [ "${path:0:1}" != "/" ]; then
-		path="/$path"
-	fi
-	if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
-		path="${path:0:${#path}-1}"
-	fi
+# Correct path using .fonctions
+CHECK_PATH
 
-# Check domain/path availability
-	sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-		|| ynh_die "Path not available: ${domain}${path}"
+# Check domain/path availability using .fonctions
+CHECK_DOMAINPATH
 
 # Use 'rainloop' as database name and user
 	dbuser=$app
@@ -38,7 +36,9 @@
 	ynh_app_setting_set "$app" mysqlpwd "$dbpass"
 
 # Create the final path and copy sources
+	CHECK_FINALPATH
 	final_path=/var/www/$app
+
 	rainloop_path=${final_path}/app
 
 	sudo rm -rf $final_path

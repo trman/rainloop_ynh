@@ -22,6 +22,7 @@
 
 # Source app helpers
 	source /usr/share/yunohost/helpers
+	source .fonctions
 
 # Retrieve arguments
 	domain=$(ynh_app_setting_get "$app" domain)
@@ -34,13 +35,8 @@
 	db_user=$app
 	plugins=$(ynh_app_setting_get "$app" plugins)
 
-# Correct path
-	if [ "${path:0:1}" != "/" ]; then
-		path="/$path"
-	fi
-	if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
-		path="${path:0:${#path}-1}"
-	fi
+# Correct path using .fonctions
+CHECK_PATH
 
 # no update for db now...
 
