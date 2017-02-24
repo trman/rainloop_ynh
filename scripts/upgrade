@@ -87,7 +87,7 @@
         else
             sudo sed -i "s@ROOTTOCHANGE@$path@g"     $nginx_conf_file
         fi
-        sudo sed -i "s@PATHTOCHANGE@$path@g"          $nginx_conf_file
+        sudo sed -i "s@PATHTOCHANGE@$path@g"         $nginx_conf_file
 	sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" $nginx_conf_file
 	sudo sed -i "s@NAMETOCHANGE@$app@g"          $nginx_conf_file
 	sudo chown root:                             $nginx_conf_file
@@ -100,5 +100,5 @@
 	sudo chmod 644                      $finalphpconf
 
 # Reload services
-	sudo service php5-fpm reload || true
-	sudo service nginx reload || true
+	sudo service php5-fpm reload
+	sudo service nginx reload
