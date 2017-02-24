@@ -7,7 +7,7 @@
         "fr": "Webmail léger multi-comptes"
     },
     "url": "http://rainloop.net/",
-    "license": "GPL-2.0",
+    "license": "AGPL-3.0",
     "maintainer": {
         "name": "scith, Djip007, polytan02"
     },
