@@ -5,6 +5,7 @@
 
 # Source app helpers
 	source /usr/share/yunohost/helpers
+	source .fonctions
 
 # Retrieve arguments
 	dbuser=$app
