@@ -48,14 +48,19 @@ SECURE_REMOVE () {      # Suppression de dossier avec vérification des variable
         fi
 }
 
-# Retrieve arguments
-	dbuser=$app
-	dbname=$app
-	domain=$(ynh_app_setting_get "$app" domain)
+REMOVE_BDD () { # Suppression de la base de donnée et de l'utilisateur associé.
+# $1 = Nom de la base de donnée
+        # Utilise '$app' comme nom d'utilisateur et de base de donnée
+        db_user=$1
+        if mysqlshow -u root -p$(sudo cat $MYSQL_ROOT_PWD_FILE) | grep -q "^| $db_user"; then
+                echo "Delete db"
+                ynh_mysql_drop_db $db_user
+                ynh_mysql_drop_user $db_user
+        fi
+}
 
 # Drop MySQL database and user
-	ynh_mysql_drop_db "$dbname" 2>&1 || true
-	ynh_mysql_drop_user "$dbuser" 2>&1 || true
+	REMOVE_BDD "$app"
 
 # Delete app directory and configurations using secure remove
 	SECURE_REMOVE	'/var/www/$app'
