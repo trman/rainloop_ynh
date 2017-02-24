@@ -1,6 +1,6 @@
 #!/bin/bash
 	app=$YNH_APP_INSTANCE_NAME
-	rainloop_version='1.10.5.192'
+	rainloop_version=$(cat ../sources/rainloop_version)
 
 # Backup the current version of the app, restore it if the upgrade fails
 # Check if old backup exists
