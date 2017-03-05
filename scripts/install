@@ -80,7 +80,7 @@ CHECK_DOMAINPATH
 	ynh_app_setting_set "$app" lang "$lang"
 
 	# Set plugins
-	plugins="auto-domain-grab"		# This plugin is trying to automatically grab unknown domains if users want to add external email accounts
+	plugins="ynh-login-mapping,auto-domain-grab"		# This plugin is trying to automatically grab unknown domains if users want to add external email accounts
 	if [ "$ldap" = "Yes" ];
 	then
 		plugins="$plugins,ynh-ldap-suggestions"		# This plugin is to suggest YunoHost users in recipients list
