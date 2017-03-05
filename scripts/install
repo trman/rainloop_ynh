@@ -85,6 +85,7 @@ CHECK_DOMAINPATH
 	then
 		plugins="$plugins,ynh-ldap-suggestions"		# This plugin is to suggest YunoHost users in recipients list
 	fi
+	ynh_app_setting_set "$app" ldap "$ldap"
 	ynh_app_setting_set "$app" plugins "$plugins"
 
 	sudo cp ../conf/data/configs/application.ini $application_file
