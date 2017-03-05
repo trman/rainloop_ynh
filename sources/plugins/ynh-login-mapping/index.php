@@ -18,6 +18,7 @@ class YnhLoginMappingPlugin extends \RainLoop\Plugins\AbstractPlugin {
 		
 		// connection au ldap ynh... en local
 		$cnx = ldap_connect (); // single connection
+		ldap_set_option($cnx, LDAP_OPT_PROTOCOL_VERSION, 3);
 		
 		if (! $cnx) {
 			$this->Manager()->Actions()->Logger()->Write('YnhLoginMappingPlugin: Could not connect to LDAP server', \MailSo\Log\Enumerations\Type::ERROR);
