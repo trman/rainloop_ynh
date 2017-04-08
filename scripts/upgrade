@@ -63,9 +63,14 @@ CHECK_PATH
 	sudo cp -rf ../sources/plugins/ynh-ldap-suggestions $rainloop_path/data/_data_/_default_/plugins/.
 
 # update SSO
-	sudo cp ../sources/sso/sso.php        $final_path/index.php
-	sudo sed -i "s@domain.tld@$domain@g"  $final_path/index.php
-	sudo sed -i "s@PATHTOCHANGE@$path@g"  $final_path/index.php
+	sudo cp ../sources/sso/sso.php        			$final_path/index.php
+	sudo sed -i "s@domain.tld@$domain@g"  			$final_path/index.php
+	sudo sed -i "s@ALIASTOCHANGE@$final_path@g"  	$final_path/index.php
+	if [ $path = "/" ]; then
+	    sudo sed -i "s@ROOTTOCHANGE@@g"          	$final_path/index.php
+	else
+	    sudo sed -i "s@ROOTTOCHANGE@$path@g"     	$final_path/index.php
+	fi
 
 # Install PGPback by chtixof to allow users to backup/restore their PGP private keys on the server
 	sudo cp -rf ../sources/pgpback        	  $final_path/.
