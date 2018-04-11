@@ -40,4 +40,4 @@ Notification=none
 ;;; Upgrade options
 	; commit=80cce268248d4d34b2ad1671ee31d3403f9262c6
 		name=Fix root install
-		manifest_arg=domain=DOMAIN&path=PATH&is_public=1&password=password&ldap=1&lang=English&
+		manifest_arg=domain=DOMAIN&path=PATH&is_public=Yes&password=password&ldap=1&lang=English&
